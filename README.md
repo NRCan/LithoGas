@@ -56,26 +56,28 @@ plots[[2]]  # view the ggplot2 object
 ## Core Workflow
 
 ```
-Input dataframe
+Input dataframe      ← structured dataframe - see examples
       │
       ▼
- monteProd()          ← main wrapper; iterates over samples
+ monteProd()      ← main wrapper; iterates over samples
       │
-      ├──► joinLitProps()     ← assigns rock density & porosity from CRPPData
+      ├──► joinLitProps()      ← assigns rock density & porosity from CRPPData
       │                          (when litLith provided, no sample data)
       │
-      ├──► monteRad()         ← radiolysis H2 & He production rates
-      │                          (when rad = TRUE)
+      ├──► monteRad()      ← radiolysis H2 & He production rates
+      │                      (when rad = TRUE)
       │
-      └──► monteSerpFeSpecies()  ← serpentinization H2 production rates
-                                    (when serp = TRUE)
+      └──► monteSerpFeSpecies()      ← serpentinization H2 production rates from geochemistry data with iron speciation
+      │                                (when serp = TRUE)
       │
+            └──► monteSerpFeSpecies()      ← serpentinization H2 production rates from geochemistry data with total iron
+      │                                      (when serp = TRUE and allowTotalFeSerp = TRUE)
       ▼
  monteSum()           ← summarises trials to min/mean/max per sample
       │
       ▼
- monteH2Plot()        ← log-log source area plot for H2
- monteHePlot()        ← log-log source area plot for He
+ monteH2Plot()        ← log-log source volume plot for H2
+ monteHePlot()        ← log-log source volume plot for He
 ```
 
 ---
