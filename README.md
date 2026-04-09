@@ -136,6 +136,7 @@ unique(CRPPData$Lithology)
 
 
 Note: monteProd() evaluates each input row/sample for the presence of all required variables prior to performing calculations. It will not run functions where data is not present. As such, multiple methods (radiolysis only, radiolysis + iron speciation serpentinization) can be run from the same input datasheet, as per the example. 
+
 ---
 
 ## Datasets
