@@ -64,9 +64,10 @@
 #' @export
 monteSerpFeSpecies <- function(DF,numGen){
 
-  initColnames <- colnames(DF)
-  #First bit of iron ratios stuff
-  Fe2O3 <- as.data.frame(rtrunc(numGen,  #Generate a distribution of measured Fe2O3 based on measurement uncertianty
+  initColnames <- colnames(DF) #grab the column names that the data came in with
+
+  #iterate measured Fe2O3 and FeO values
+  Fe2O3 <- as.data.frame(rtrunc(numGen,  #Generate a distribution of measured Fe2O3
                                 "norm",
                                 lower = unique(DF$Fe2O3Min),
                                 upper = unique(DF$Fe2O3Max),
@@ -74,7 +75,7 @@ monteSerpFeSpecies <- function(DF,numGen){
                                 sd = unique(DF$Fe2O3SD)))
   colnames(Fe2O3) <-"Fe2O3" #update column name
 
-  FeO <- as.data.frame(rtrunc(numGen,  #Generate a distribution of measured FeO based on measurement uncertainty
+  FeO <- as.data.frame(rtrunc(numGen,  #Generate a distribution of measured FeO
                               "norm",
                               lower = unique(DF$FeOMin),
                               upper = unique(DF$FeOMax),
@@ -97,11 +98,11 @@ monteSerpFeSpecies <- function(DF,numGen){
   colnames(Fe3FeTInitalRat) <-"Fe3FeTInitalRat"
   DF <- cbind(DF,Fe3FeTInitalRat)
 
-  DF$Fe3FeTInitalRat <- pmin(DF$Fe3FeTInitalRat, DF$Fe3FeTRatCur)
+  DF$Fe3FeTInitalRat <- pmin(DF$Fe3FeTInitalRat, DF$Fe3FeTRatCur) #take the lower of the initial and measured Fe3FeTRatios
 
-  #Second portion of iron ratio
+  #Find difference between measured and initial iron ratio
   DF$Fe3FeTRatDiff <- DF$Fe3FeTRatCur - DF$Fe3FeTInitalRat
-  DF$Fe3O4Diff_wt <- DF$Fe3FeTRatDiff * DF$FeT / 0.7236
+  DF$Fe3O4Diff_wt <- DF$Fe3FeTRatDiff * DF$FeT / 0.7236 #mutliply by total iron to get Fe3, then find the representation of that Fe3 as Fe3O4
 
   #Calculate hydrogen
   #convert to kg/m3
@@ -110,10 +111,10 @@ monteSerpFeSpecies <- function(DF,numGen){
 
   #convert mass to hydrogen if 100% converted to Fe3O4
   DF$molFe3O4 <- (DF$rockDen * (DF$Fe3O4Diff_wt/100))*(1000/231.5386) #find number of moles Fe3O4 per mass (kg) that makes up 1 cubic meter. Fe3O4 is 231.5386 g/mol or 0.2315386 kg/mol
-  DF$SerpMolH2 <- DF$molFe3O4 #find hydrogen mols assuming some conversion rate (convRate) (e.g., 100%) completion (1Fe3O43 --> 1 H2)
-  DF$SerpMassH2 <- DF$SerpMolH2 * 2.016 / 1000 #find hydrogen mass (kg) for that mols (mols hydrogen * 2.016 g/mol)
-  DF$SerpMassH2Rate <- DF$SerpMassH2 / (DF$Age * 1000000) #age is in units of millions of year (Ma) so multiply by 1,000,000 to get years
-  DF$SerpMolH2Rate <- DF$SerpMolH2 / (DF$Age * 1000000)
+  DF$SerpH2_molm3 <- DF$molFe3O4 #find hydrogen mols assuming some conversion rate (convRate) (e.g., 100%) completion (1Fe3O43 --> 1 H2)
+  #DF$SerpH2_kgm3 <- DF$SerpH2_molm3 * 2.016 / 1000 #find hydrogen mass (kg) for that mols (mols hydrogen * 2.016 g/mol)
+  #DF$SerpH2Rate_kgm3yr <- DF$SerpH2_kgm3 / (DF$Age * 1000000) #age is in units of millions of year (Ma) so multiply by 1,000,000 to get years
+  DF$SerpH2Rate_molm3yr <- DF$SerpH2_molm3 / (DF$Age * 1000000)
   DF$SerpModel <- "Fe Species Serp"
   DF <- DF %>% select(-initColnames, -mass)
   return(DF)

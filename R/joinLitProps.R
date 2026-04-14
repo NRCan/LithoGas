@@ -61,13 +61,14 @@
 #'
 #' @export
 joinLitProps <- function (samp,numGen){
-  data("CRPPData", envir = environment())
-  litProps <- CRPPData %>% filter(Lithology == samp$litLith)
-  rockDen <- as.data.frame(rtrunc(numGen, "norm",
+  data("CRPPData", envir = environment()) #get CRPPData from the package
+  litProps <- CRPPData %>% filter(Lithology == samp$litLith) #filter for the same lithology as the sample
+  rockDen <- as.data.frame(rtrunc(numGen, "norm", #create dataframe of random iterations inside truncated distribution for rock density
                                   lower = litProps$rockDenMin, upper = litProps$rockDenMax,
                                   mean = litProps$rockDenMean, sd = litProps$rockDenSD))
   colnames(rockDen) <- "rockDen"
-  porosity <- as.data.frame(rtrunc(numGen, "norm",
+
+  porosity <- as.data.frame(rtrunc(numGen, "norm", #create dataframe of random iterations inside truncated distribution for rock porosity
                                    lower = litProps$porMin, upper = litProps$porMax,
                                    mean = litProps$porMean, sd = litProps$porSD))
   colnames(porosity) <- "porosity"

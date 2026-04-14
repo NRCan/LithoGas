@@ -68,7 +68,7 @@
 #' @export
 monteRad <- function(DF, numGen){
 
-    initColnames <- colnames(DF)
+    initColnames <- colnames(DF) #grab the column names that the data came in with
     #Constants that  are used explicitly (not as parts of distributions) just set here for easier programming
     SA <- 1.5
     SB <- 1.25
@@ -79,6 +79,7 @@ monteRad <- function(DF, numGen){
     GH2G <- 0.25
     AConstant <- 6.023E23
 
+    #iterate fluid density, U concentration, Th concentration, and K concentration
     fluDen <- as.data.frame(rtrunc(numGen,
                                    "norm",
                                    lower=unique(DF$fluDenMin),
@@ -92,7 +93,7 @@ monteRad <- function(DF, numGen){
                                  lower=unique(DF$uMin),
                                  upper=unique(DF$uMax),
                                  mean=as.numeric(unique(DF$uMean)),
-                                 sd=unique(DF$uSD))) #Generate the uranium distirbution
+                                 sd=unique(DF$uSD))) #Generate the uranium distribution
     colnames(Uppm) <- "Uppm"
 
     Thppm <- as.data.frame(rtrunc(numGen,
@@ -132,14 +133,14 @@ monteRad <- function(DF, numGen){
       YH2A = ((ENetA*GH2A)/AConstant)*sysDen*10,
       YH2B = ((ENetB*GH2B)/AConstant)*sysDen*10,
       YH2G = ((ENetG*GH2G)/AConstant)*sysDen*10,
-      RadMolH2Rate = YH2A + YH2B + YH2G,  #hydrogen production
-      RadMolHeRate = (((3.115E6+1.272E5)*Uppm+7.71E5*Thppm)/AConstant)*sysDen*1E6, #helium production
-      RadMassH2Rate = RadMolH2Rate * 2.016 / 1000,
-      RadMassHeRate = RadMolHeRate * 4.0026 / 1000,
-      RadMolH2 = RadMolH2Rate * (Age*1000000),
-      RadMolHe = RadMolHeRate * (Age*1000000),
-      RadMassH2 = RadMassH2Rate * (Age * 1000000),
-      RadMassHe = RadMassHeRate * (Age * 1000000)
+      RadH2Rate_molm3yr = YH2A + YH2B + YH2G,  #H2 generation rate in mol/yr/m3
+      RadHeRate_molm3yr = (((3.115E6+1.272E5)*Uppm+7.71E5*Thppm)/AConstant)*sysDen*1E6, #He generation rate in mol/yr/m3
+      #RadH2Rate_kgm3yr = RadH2Rate_molm3yr * 2.016 / 1000, #H2 generation rate in kg/yr/m3
+      #RadHeRate_kgm3yr = RadHeRate_molm3yr * 4.0026 / 1000, #He generation rate in kg/yr/m3
+      RadH2_molm3 = RadH2Rate_molm3yr * (Age*1000000), #Total H2 generation since crystallization (mol/m3)
+      RadHe_molm3 = RadHeRate_molm3yr * (Age*1000000), #Total He generation since crystallization (mol/m3)
+      #RadH2_kgm3 = RadH2Rate_kgm3yr * (Age * 1000000), #Total H2 generation since crystallization (kg/m3)
+      #RadHe_kgm3 = RadHeRate_kgm3yr * (Age * 1000000) #Total He generation since crystallization (kg/m3)
     )
     DF$RadModel <- "Rad"
     DF <- DF %>% select(-initColnames)

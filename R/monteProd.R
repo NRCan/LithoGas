@@ -104,22 +104,22 @@ monteProd <- function(structDF,numGen,rad=FALSE,serp=FALSE,allowTotalFeSerp=FALS
                     "rockDenSD",    "porMin",  "porMax", "porMean", "porSD",
                     "fluDenMin", "fluDenMax", "fluDenMean", "fluDenSD")
 
-  missing_cols <- setdiff(desired_cols, names(structDF))  # find cols in desired but not in A
-  structDF[missing_cols] <- NA
+  missing_cols <- setdiff(desired_cols, names(structDF))  # find cols in desired but not in structuredDF
+  structDF[missing_cols] <- NA #set the missing columns to NA
 
   for(i in 1:nrow(structDF)){
-    print(i)
-    monteDF <- NULL
-    sampDF <- structDF[i,]
+    print(paste("Processing sample: ", i))
+    monteDF <- NULL #create empty dataframe for Monte Carlo results
+    sampDF <- structDF[i,] #take sample i from structuredDF
 
     #CHECK INPUTS FOR EACH SAMPLE
-    #check rock properties - rockDen, rockPorosity, litLith
+    #check rock properties - rockDen, por, litLith
     rockDenCheck <- !is.na(sampDF%>%select(rockDenMin, rockDenMax, rockDenMean, rockDenSD))
     porCheck <- !is.na(sampDF%>%select(porMin, porMax, porMean, porSD))
 
-    sampDF$litLith[sampDF$litLith == ""] <- NA
-    litLithCheck <- !is.na(sampDF$litLith)
-    litLithCheck <- sampDF$litLith %in% unique(CRPPData$Lithology)
+    sampDF$litLith[sampDF$litLith == ""] <- NA #if litLith is "", set to NA first
+    litLithCheck <- !is.na(sampDF$litLith) #check if litLith is NA
+    litLithCheck <- sampDF$litLith %in% unique(CRPPData$Lithology) #check if litLith rock type is in CRPP data
 
     #check radiolysis inputs - U, Th, K, fluDen
     uCheck <- !is.na(sampDF%>%select(uMin, uMax, uMean, uSD))
@@ -151,7 +151,7 @@ monteProd <- function(structDF,numGen,rad=FALSE,serp=FALSE,allowTotalFeSerp=FALS
     #If no rock properties add those using the joinLitProps function.
     if(sum(litLithCheck)==1 & sum(rockDenCheck)<4 & sum(porCheck)<4){
       monteDF <- cbind(monteDF,joinLitProps(sampDF,numGen))
-    } else if (sum(rockDenCheck)==4 & sum(porCheck)==4){
+    } else if (sum(rockDenCheck)==4 & sum(porCheck)==4){ #otherwise generate them
       rockDen <- as.data.frame(rtrunc(numGen, "norm",
                                       lower = sampDF$rockDenMin,
                                       upper = sampDF$rockDenMax,

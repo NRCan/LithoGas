@@ -64,9 +64,9 @@
 monteSum <- function(monteDF,summaryField){
 
   #Add any missing columns to the monte carlo results
-  desired_cols <- c("SerpMolH2Rate", "RadMolH2Rate",   "RadMolHeRate")
+  desired_cols <- c("SerpH2Rate_molm3yr", "RadH2Rate_molm3yr",   "RadHeRate_molm3yr") #these are the columns we want in our monteOutput
   missing_cols <- setdiff(desired_cols, names(monteDF))  # find cols in desired but not in A
-  monteDF[missing_cols] <- NA
+  monteDF[missing_cols] <- NA #set any of the missing columns to NA
 
   # Replace infinite values with NA across all numeric columns
   monteDF <- monteDF %>%
@@ -75,25 +75,25 @@ monteSum <- function(monteDF,summaryField){
   #groupby the chosen field and summarize the rates
   sumDF <- monteDF %>%
     group_by(!!sym(summaryField)) %>%
-    summarize(SerpH2Min = if(all(is.na(SerpMolH2Rate))) NA_real_ else min(SerpMolH2Rate,na.rm=TRUE),
-              SerpH2Mean =  if(all(is.na(SerpMolH2Rate))) NA_real_ else mean(SerpMolH2Rate,na.rm=TRUE),
-              SerpH2Max =  if(all(is.na(SerpMolH2Rate))) NA_real_ else max(SerpMolH2Rate,na.rm=TRUE),
-              RadH2Min =  if(all(is.na(RadMolH2Rate))) NA_real_ else min(RadMolH2Rate,na.rm=TRUE),
-              RadH2Mean =  if(all(is.na(RadMolH2Rate))) NA_real_ else mean(RadMolH2Rate,na.rm=TRUE),
-              RadH2Max =  if(all(is.na(RadMolH2Rate))) NA_real_ else max(RadMolH2Rate,na.rm=TRUE),
-              H2RateMin = sum(SerpH2Min,RadH2Min, na.rm=TRUE),
-              H2RateMean = sum(SerpH2Mean, RadH2Mean, na.rm=TRUE),
-              H2RateMax = sum(SerpH2Max, RadH2Max, na.rm=TRUE),
-              RadHeMin =  if(all(is.na(RadMolHeRate))) NA_real_ else min(RadMolHeRate ,na.rm=TRUE),
-              RadHeMean =  if(all(is.na(RadMolHeRate))) NA_real_ else mean(RadMolHeRate ,na.rm=TRUE),
-              RadHeMax =  if(all(is.na(RadMolHeRate))) NA_real_ else max(RadMolHeRate ,na.rm=TRUE),
-              HeRateMin = RadHeMin,
-              HeRateMean = RadHeMean,
-              HeRateMax = RadHeMax)
+    summarize(SerpH2RateMin_molm3yr = if(all(is.na(SerpH2Rate_molm3yr))) NA_real_ else min(SerpH2Rate_molm3yr,na.rm=TRUE),
+              SerpH2RateMean_molm3yr =  if(all(is.na(SerpH2Rate_molm3yr))) NA_real_ else mean(SerpH2Rate_molm3yr,na.rm=TRUE),
+              SerpH2RateMax_molm3yr =  if(all(is.na(SerpH2Rate_molm3yr))) NA_real_ else max(SerpH2Rate_molm3yr,na.rm=TRUE),
+              RadH2RateMin_molm3yr =  if(all(is.na(RadH2Rate_molm3yr))) NA_real_ else min(RadH2Rate_molm3yr,na.rm=TRUE),
+              RadH2RateMean_molm3yr =  if(all(is.na(RadH2Rate_molm3yr))) NA_real_ else mean(RadH2Rate_molm3yr,na.rm=TRUE),
+              RadH2RateMax_molm3yr =  if(all(is.na(RadH2Rate_molm3yr))) NA_real_ else max(RadH2Rate_molm3yr,na.rm=TRUE),
+              H2RateMin_molm3yr = sum(SerpH2RateMin_molm3yr,RadH2RateMin_molm3yr, na.rm=TRUE), #total hydrogen production rates is that of radiolysis + serpentinization
+              H2RateMean_molm3yr = sum(SerpH2RateMean_molm3yr, RadH2RateMean_molm3yr, na.rm=TRUE),  #total hydrogen production rates is that of radiolysis + serpentinization
+              H2RateMax_molm3yr = sum(SerpH2RateMax_molm3yr, RadH2RateMax_molm3yr, na.rm=TRUE),  #total hydrogen production rates is that of radiolysis + serpentinization
+              RadHeRateMin_molm3yr =  if(all(is.na(RadHeRate_molm3yr))) NA_real_ else min(RadHeRate_molm3yr, na.rm=TRUE),
+              RadHeRateMean_molm3yr =  if(all(is.na(RadHeRate_molm3yr))) NA_real_ else mean(RadHeRate_molm3yr, na.rm=TRUE),
+              RadHeRateMax_molm3yr =  if(all(is.na(RadHeRate_molm3yr))) NA_real_ else max(RadHeRate_molm3yr, na.rm=TRUE),
+              HeRateMin_molm3yr = RadHeRateMin_molm3yr, #total helium rates is that of just He from radiolysis
+              HeRateMean_molm3yr = RadHeRateMean_molm3yr, #total helium rates is that of just He from radiolysis
+              HeRateMax_molm3yr = RadHeRateMax_molm3yr) #total helium rates is that of just He from radiolysis
 
-  # Replace any Inf/-Inf produced by min()/max() on all-NA groups with NA
+
   sumDF <- sumDF %>%
-    mutate(across(where(is.numeric), ~ ifelse(is.infinite(.), NA, .)))
+    mutate(across(where(is.numeric), ~ ifelse(is.infinite(.), NA, .))) # Replace any Inf/-Inf produced by min()/max() on all-NA groups with NA
 
   return(sumDF)
 }

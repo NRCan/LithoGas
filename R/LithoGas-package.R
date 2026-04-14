@@ -10,19 +10,16 @@
 
 utils::globalVariables(c(
   # Datasets
-  "CRPPData", "structuredDF", "modelDF",
+  "CRPPData", "structuredDF",
 
   # Sample identifiers
-  "Lithology",  "Sample",  "mass",  "volume",  "sysDen",
-
-  # Age
-  "AgeMa",  "AgeUnc2S_Ma",  "Age",
+  "Lithology",  "Sample", "AgeMa",  "AgeUnc2S_Ma",  "Age",
 
   # Rock properties
   "rockDen", "rockDenMin", "rockDenMax", "rockDenMean", "rockDenSD",
   "porosity", "porMin", "porMax", "porMean", "porSD",
 
-  # Radiolysis related
+  # Radiolysis related - monteRad()
   "uMin", "uMax", "uMean", "uSD",
   "thMin", "thMax", "thMean", "thSD",
   "kMin", "kMax", "kMean", "kSD",
@@ -30,13 +27,10 @@ utils::globalVariables(c(
   "EThA", "EThB", "EThG",
   "EUA", "EUB", "EUG",
   "ENetA", "ENetB", "ENetG",
-  "W","YH2A", "YH2B", "YH2G",
-  "RadMassH2Rate", "RadMolsH2Rate",
-  "RadH2Min", "RadH2Mean", "RadH2Max",
-  "RadMassHeRate", "RadMolsHeRate",
-  "RadHeMin", "RadHeMean", "RadHeMax", "RadMolH2Rate", "RadMolHeRate",  "RadMassH2Rate", "RadMassHeRate",
+  "sysDen",  "W","YH2A", "YH2B", "YH2G",
+  "RadH2Rate_molm3yr", "RadHeRate_molm3yr", "RadH2_molm3", "RadHe_molm3",
 
-  # Serpentinization related
+  # Serpentinization related - monteSerpFeSpecies() & monteSerpFeTotal()
   "Fe2O3Min", "Fe2O3Max", "Fe2O3Mean", "Fe2O3SD",
   "Fe2O3TMin", "Fe2O3TMax", "Fe2O3TMean", "Fe2O3TSD",
   "FeOMin", "FeOMax", "FeOMean", "FeOSD",
@@ -44,15 +38,20 @@ utils::globalVariables(c(
   "Fe3FeTInitalRatMean", "Fe3FeTInitalRatSD",
   "Fe3FeTRatCurMin", "Fe3FeTRatCurMax",
   "Fe3FeTRatCurMean", "Fe3FeTRatCurSD",
-  "SerpRateMolH2",
-  "SerpH2Min", "SerpH2Mean", "SerpH2Max", "SerpMolH2Rate", "SerpMassH2Rate",
+  "mass",
+  "SerpH2_molm3", "SerpH2Rate_molm3yr",
 
-  # H2 outputs
-  "H2total",  "meanH2", "minH2", "maxH2", "H2RateMin",  "H2RateMean", "H2RateMax",
+  #monteSum()
+  "sampleField",
+  "SerpH2RateMin_molm3yr", "SerpH2RateMean_molm3yr", "SerpH2RateMax_molm3yr",
+  "RadH2RateMin_molm3yr","RadH2RateMean_molm3yr","RadH2RateMax_molm3yr",
+  "H2RateMin_molm3yr",  "H2RateMean_molm3yr",  "H2RateMax_molm3yr",
+  "RadHeRateMin_molm3yr","RadHeRateMean_molm3yr","RadHeRateMax_molm3yr",
+  "RadHeMax_molm3yr",  "HeRateMin_molm3yr",  "HeRateMean_molm3yr","HeRateMax_molm3yr",
 
-  # He outputs
-  "Hetotal",  "meanHe", "minHe", "maxHe", "HeRateMin", "HeRateMean", "HeRateMax",
+  #plotting - monteH2Plot() and monteHePlot()
+  "vol_km",  "colorField",
+  "H2RateMin_molyr", "H2RateMean_molyr", "H2RateMax_molyr",
+  "HeRateMin_molyr", "HeRateMean_molyr", "HeRateMax_molyr"
 
-  #Plotting and summary
-  "colorField", "vol"
 ))

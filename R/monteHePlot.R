@@ -30,9 +30,11 @@
 #'   \describe{
 #'     \item{\code{[[1]]}}{A data frame (\code{volDF}) containing the
 #'       volume-scaled helium production rates for all samples across all
-#'       source rock volumes. Columns include \code{vol},
-#'       \code{HeRateMin}, \code{HeRateMean}, and \code{HeRateMax} in units
-#'       of mol He / year.}
+#'       source rock volumes. Columns include
+#'       \code{vol_km} - in kilometers cubed,
+#'       \code{HeRateMin_molyr} - minimum He generation rate in mols/year,
+#'       \code{HeRateMean_molyr} - mean He generation rate in mols/year, and
+#'       \code{HeRateMax_molyr} - maximum He generation rate in mols/year}
 #'     \item{\code{[[2]]}}{A \code{ggplot2} object showing a log-log source
 #'       area plot of mean helium production rate vs. source rock volume,
 #'       coloured by \code{ModelLabel}. The secondary y-axis shows equivalent
@@ -60,55 +62,32 @@ monteHePlot <- function(sumDF, colorField = "Sample"){#,ribbon=FALSE){
 
   #translate the summary rates from mol/m3/year to mol/km3/year
   sumDF <- sumDF %>%
-    select(-SerpH2Min,-SerpH2Mean,-SerpH2Max,-RadH2Min,-RadH2Mean,-RadH2Max,-H2RateMin,-H2RateMean,-H2RateMax,-RadHeMin,-RadHeMean,-RadHeMax) %>% #drop unneeded summary columns
-    mutate(HeRateMin = HeRateMin*1E9,
-           HeRateMean = HeRateMean*1E9,
-           HeRateMax = HeRateMax*1E9)
+    select(-SerpH2RateMin_molm3yr,-SerpH2RateMean_molm3yr,-SerpH2RateMax_molm3yr,
+           -RadH2RateMin_molm3yr,-RadH2RateMean_molm3yr,-RadH2RateMax_molm3yr,
+           -H2RateMin_molm3yr,-H2RateMean_molm3yr,-H2RateMax_molm3yr,
+           -RadHeRateMin_molm3yr,-RadHeRateMean_molm3yr,-RadHeRateMax_molm3yr) %>% #drop not needed summary columns
+    mutate(HeRateMin_molkm3yr = HeRateMin_molm3yr*1E9,
+           HeRateMean_molkm3yr = HeRateMean_molm3yr*1E9,
+           HeRateMax_molkm3yr = HeRateMax_molm3yr*1E9) #calculate the rate for 1km^3, 1k^3 = 1E9m^3
 
   #set up an empty dataframe volDF, that we will write our results to
   volDF <- NULL
 
   #enter for loop going from that iterates from 0.1 km3 to 100 km3 calculating the hydrogen production rate
   for (i in c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.6,0.8,0.9,1,2,3,4,5,6,7,8,9,10,20,30,40,50,60,70,80,90,100)) {
-    #print(i)
     tempDF <- sumDF #set sumDF to a temporary dataframe
-    tempDF$vol <- i #populate the volume
-    tempDF$HeRateMin <- tempDF$HeRateMin * i #calculate the minimum hydrogen production rate
-    tempDF$HeRateMean <- tempDF$HeRateMean * i
-    tempDF$HeRateMax <- tempDF$HeRateMax * i
+    tempDF$vol_km <- i #populate the volume in kilometers cubed
+    tempDF$HeRateMin_molyr <- tempDF$HeRateMin_molkm3yr * i #calculate the minimum hydrogen production rate
+    tempDF$HeRateMean_molyr <- tempDF$HeRateMean_molkm3yr * i
+    tempDF$HeRateMax_molyr <- tempDF$HeRateMax_molkm3yr * i
     volDF <- rbind(volDF, tempDF)
   }
 
   p <- ggplot(volDF) +
-    geom_line(mapping=aes(x=vol, y=HeRateMean, color=!!sym(colorField))) +
+    geom_line(mapping=aes(x=vol_km, y=HeRateMean_molyr, color=!!sym(colorField))) +
     labs(x="Source rock volume (km3)",y="He generation rate (mol/year)", color="Source Rock") +
     theme_bw() + scale_y_log10(sec.axis = sec_axis(~ . * 0.0040026, name = "(kg/year)")) +
     scale_x_log10()
 
   return(list(volDF,p))
-
-  # xbreaks <- 10^(0:10)
-  # xminor_breaks <- rep(1:9, 21)*(10^rep(-10:10, each=9))
-  #
-  # ybreaks <- 10^(0:10)
-  # yminor_breaks <- rep(1:9, 21)*(10^rep(-10:10, each=9))
-  # if(ribbon==FALSE){
-  #   ggplot(dfProd) +
-  #     geom_line(mapping=aes(x=volume,y=meanH2, color=Sample)) +
-  #     theme_bw() +
-  #     xlab("Source rock volume (km3)") +
-  #     ylab("Yearly H2 production (mol H2 / km3 / year)") +
-  #     scale_x_log10() +
-  #     scale_y_continuous(sec.axis=sec_axis(~.*2.016/1000, name="Produced H2 mass (kg H2 / km3 / year)"))
-  # } else {
-  #   ggplot(dfProd) +
-  #     geom_line(mapping=aes(x=volume,y=meanH2, color=Sample)) +
-  #     geom_ribbon(mapping=aes(x=volume,ymin=minH2,ymax=maxH2, fill=Sample),alpha=0.1) +
-  #     theme_bw() +
-  #     xlab("Source rock volume (km3)") +
-  #     ylab("Yearly H2 production (mol H2 / km3 / year)") +
-  #     scale_x_log10() +
-  #     scale_y_continuous(sec.axis=sec_axis(~.*2.016/1000, name="Produced H2 mass (kg H2 / km3 / year)"))
-  # }
-
 }
