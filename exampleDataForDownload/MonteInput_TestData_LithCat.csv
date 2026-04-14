@@ -1,6 +1,0 @@
-Sample,litLith,fluDenMin,fluDenMax,fluDenMean,fluDenSD,uMin,uMax,uMean,uSD,thMin,thMax,thMean,thSD,kMin,kMax,kMean,kSD
-Sample1,basalt,1,1.37,1.185,0.016666,5,25,17.7,1.1,20,50,35.1,30,1.25,5,3.860185988,1.25
-Sample2,quartzite,1,1.37,1.185,0.016666,0.1,2.5,0.4,0.1,0.1,5,3,1,0,2,0.840040474,0.25
-Sample3,unspecified gneiss,1,1.37,1.185,0.016666,1,2.5,1.52,0.1,5,20,15.8,10,2,10,7.290351258,2.25
-Sample4,sedimentary - limestone,1,1.37,1.185,0.016666,3,10,7.57,0.5,0.1,10,7.1,5,1,5,2.260108895,0.75
-Sample5,hypabyssal - porphyry,1,1.37,1.185,0.016666,0,5,3.61,0.5,0.1,7.5,4.2,3,1.5,7.5,5.550267418,1.75
