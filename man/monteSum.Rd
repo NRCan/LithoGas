@@ -4,20 +4,70 @@
 \alias{monteSum}
 \title{monteSum}
 \usage{
-monteSum(modelDF)
+monteSum(monteDF, summaryField)
 }
 \arguments{
-\item{modelDF}{Monte Carlo model dataframe produced by the monteProd() function.}
+\item{monteDF}{A data frame of Monte Carlo trials produced by
+\code{\link{monteProd}}. Each row is one Monte Carlo trial for one
+sample. Must contain a column matching \code{summaryField}.}
+
+\item{summaryField}{Character string. The name of the column in
+\code{monteDF} to group by (e.g. \code{"Sample"}, \code{"litLith"}).
+Passed using tidy evaluation via \code{!!sym()}.}
+}
+\value{
+A data frame with one row per unique value of \code{summaryField}
+  and the following columns:
+  \describe{
+    \item{\code{SerpH2Min}, \code{SerpH2Mean}, \code{SerpH2Max}}{Min,
+      mean, and max serpentinization hydrogen production rate
+      (mol H\eqn{_2} / m\eqn{^3} / year).}
+    \item{\code{RadH2Min}, \code{RadH2Mean}, \code{RadH2Max}}{Min,
+      mean, and max radiolysis hydrogen production rate
+      (mol H\eqn{_2} / m\eqn{^3} / year).}
+    \item{\code{H2RateMin}, \code{H2RateMean}, \code{H2RateMax}}{Min,
+      mean, and max total hydrogen production rate (serp + rad)
+      (mol H\eqn{_2} / m\eqn{^3} / year).}
+    \item{\code{RadHeMin}, \code{RadHeMean}, \code{RadHeMax}}{Min,
+      mean, and max radiolysis helium production rate
+      (mol He / m\eqn{^3} / year).}
+    \item{\code{HeRateMin}, \code{HeRateMean}, \code{HeRateMax}}{Min,
+      mean, and max total helium production rate
+      (mol He / m\eqn{^3} / year).}
+  }
 }
 \description{
-Returns a summarized dataframe (one row per sample) from the output dataframe of the monteProd() function.
+Summarises the full Monte Carlo trial dataframe produced by
+\code{\link{monteProd}} into one row per sample group, returning the
+minimum, mean, and maximum production rates for hydrogen and helium across
+all trials. This summary dataframe is the required input for
+\code{\link{monteH2Plot}} and \code{\link{monteHePlot}}.
 }
 \details{
-This function uses a "groupby() %>% summaize()" to produce a min/max/mean/standard deviation for both the hydrogen production and helium production of the input samples.  Production rates (columns ending in H2 and He) are in rates of mols gas / m3 / year following Warr et al. (2023).
+The function groups \code{monteDF} by \code{summaryField} using
+\code{group_by(!!sym(summaryField))} to allow a user-defined grouping
+column to be passed as a string. Within each group, min/mean/max are
+computed for serpentinization hydrogen rates, radiolysis hydrogen rates,
+and radiolysis helium rates. Combined total hydrogen rates
+(\code{H2RateMin}, \code{H2RateMean}, \code{H2RateMax}) are computed as
+the sum of serpentinization and radiolysis contributions.
+
+Any missing rate columns (\code{SerpMolH2Rate}, \code{RadMolH2Rate},
+\code{RadMolHeRate}) are added as \code{NA} automatically, so the function
+handles outputs from radiolysis-only, serpentinization-only, or combined
+model runs without error.
+
+All production rate output columns are in units of
+mol gas / m\eqn{^3} rock / year.
 }
 \examples{
-data("monteDataLithCat")
-df <- monteProd(lithCat,1000)
-monteSum(df)
+data("structuredDF")
+df <- monteProd(structuredDF, numGen = 50, rad = TRUE, serp = TRUE)
+monteSum(df, summaryField = "Sample")
 
+}
+\seealso{
+\code{\link{monteProd}} to generate the input dataframe,
+  \code{\link{monteH2Plot}} and \code{\link{monteHePlot}} for
+  visualising the summary output.
 }

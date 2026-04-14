@@ -4,21 +4,105 @@
 \alias{monteProd}
 \title{monteProd}
 \usage{
-monteProd(sampDF, numGen)
+monteProd(
+  structDF,
+  numGen,
+  rad = FALSE,
+  serp = FALSE,
+  allowTotalFeSerp = FALSE
+)
 }
 \arguments{
-\item{sampDF}{Structured sample dataframe}
+\item{structDF}{A data frame containing one or more lithogeochemical
+samples. Each row is one sample. Column names must match the required
+input schema. See \code{structuredDF} for structure. Missing columns
+are added as \code{NA} automatically.}
 
-\item{numGen}{Number of Monte Carlo simulations}
+\item{numGen}{Integer. Number of Monte Carlo iterations to run per sample.}
+
+\item{rad}{Logical. If \code{TRUE}, radiolysis calculations of hydrogen
+and helium production rates are performed via \code{\link{monteRad}}.
+Requires \code{uMin}/\code{uMax}/\code{uMean}/\code{uSD},
+\code{thMin}/\code{thMax}/\code{thMean}/\code{thSD},
+\code{kMin}/\code{kMax}/\code{kMean}/\code{kSD}, and age columns.
+Defaults to \code{FALSE}.}
+
+\item{serp}{Logical. If \code{TRUE}, serpentinization calculations of
+hydrogen production rates are performed using iron speciation methods
+via \code{\link{monteSerpFeSpecies}}. Requires \code{Fe2O3Min},
+\code{Fe2O3Max}/\code{Fe2O3Mean}/\code{Fe2O3SD}/\code{FeOMin},
+\code{FeOMax}/\code{FeOMean}/\code{FeOSD}/\code{Fe3FeTInitalRatMin},
+\code{Fe3FeTInitalRatMax}/\code{Fe3FeTInitalRatMean},
+\code{Fe3FeTInitalRatSD}, and age columns
+Defaults to \code{FALSE}.}
+
+\item{allowTotalFeSerp}{Logical. If \code{TRUE}, total iron
+serpentinization calculations are used in lieu of iron speciation
+methods when \code{serp = FALSE}. Requires total \code{Fe2O3TMin},
+\code{Fe2O3TMax}/\code{Fe2O3TMean}/\code{Fe2O3TSD}/\code{Fe3FeTInitalRatMin},
+\code{Fe3FeTInitalRatMax}/\code{Fe3FeTInitalRatMean},
+\code{Fe3FeTInitalRatSD}/\code{Fe3FeTRatCurMin}/\code{Fe3FeTRatCurMax},
+\code{Fe3FeTRatCurMean}/\code{Fe3FeTRatCurSD}, and age columns.
+Defaults to \code{FALSE}.}
+}
+\value{
+A data frame containing all Monte Carlo trials for all input
+  samples bound by rows. Includes all original input columns plus sampled
+  petrophysical properties, age distributions, and computed production
+  rates depending on which models were run.
 }
 \description{
-Monte Carlo model of Warr et al (2023) implemented in R.
+The main wrapper function for Monte Carlo modelling of hydrogen and helium
+production rates via radiolysis and serpentinization. The function loops
+over each row of a structured input dataframe, generates \code{numGen} Monte Carlo
+iterations per sample, and returns all trials combined in a single dataframe.
 }
 \details{
-The monteProd() function takes a structured dataframe and grabs data from the dataframe by column name. As such, look at example data (lithCat and rockProps) for structure. This outputs a dataframe including all Monte Carlo trials for all input samples. Production rates (H2total, Hetotal) are in rates of mols gas / m3 rock / year following Warr et al. (2023).
+For each sample row in \code{structDF}, \code{monteProd} performs the
+following steps:
+
+\enumerate{
+  \item Checks which input data are available (rock properties, age,
+    radiolysis inputs, iron speciation).
+  \item Expands the sample row to \code{numGen} rows for Monte Carlo
+    trials.
+  \item Generates an age distribution from geochronologic uncertainty
+    (\code{AgeMa} +/- \code{AgeUnc2S_Ma}/2) if age columns are present.
+  \item Assigns rock density and porosity either from sample-specific
+    distributions or from lithology defaults via
+    \code{\link{joinLitProps}} if \code{litLith} is provided and
+    sample-specific values are absent.
+  \item Optionally runs serpentinization modelling via
+    \code{\link{monteSerpFeSpecies}} if \code{serp = TRUE} and iron
+    speciation data and age data are present, or total-Fe serpentinization if
+    \code{allowTotalFeSerp = TRUE}.
+  \item Optionally runs radiolysis modelling via \code{\link{monteRad}}
+    if \code{rad = TRUE} and U, Th, K, and age data are present.
+}
+
+Any missing columns from the expected input schema are added as \code{NA}
+automatically. Parameters are called from the input dataframe by name, so
+they must match exactly to templates must match the required
+input fields — see \code{\link{structuredDF}} for the expected structure.
+
+Production rates (\code{RadMolsH2Rate}, \code{SerpMolH2Rate},
+\code{RadMolsHeRate}) are in units of mol gas / m\eqn{^3} rock / year,
+following Warr et al. (2023) and Ardakani et al. (in review).
 }
 \examples{
-data("monteDataLithCat")
-monteProd(lithCat,1000)
+data("structuredDF")
+monteProd(structuredDF,500,TRUE,TRUE,TRUE)
 
+}
+\references{
+Warr, O., Song, M., Sherwood Lollar, B. (2023). The application of Monte
+Carlo modelling to quantify in situ hydrogen and associated element
+production in the deep subsurface. Frontiers in Earth Science, v.11.
+
+Ardakani, O.A., Sherwood Lollar, B., Coutts, D.S., Warr, O.A., et al.
+(in Review).
+}
+\seealso{
+\code{\link{monteRad}}, \code{\link{monteSerpFeSpecies}},
+  \code{\link{joinLitProps}}, \code{\link{rtrunc}}, \code{\link{monteSum}}
 }

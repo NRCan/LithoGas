@@ -4,20 +4,63 @@
 \alias{monteHePlot}
 \title{monteHePlot}
 \usage{
-monteHePlot(modelDF, ribbon = FALSE)
+monteHePlot(sumDF, colorField = "Sample")
 }
 \arguments{
-\item{modelDF}{Output dataframe of Monte Carlo model}
+\item{sumDF}{A summary data frame produced by \code{\link{monteSum}}.
+Must contain columns \code{HeRateMin},
+\code{HeRateMean}, and \code{HeRateMax} in units of
+mol He / m\eqn{^3} / year.}
 
-\item{ribbon}{Boolean parameter that controls a geom_ribbon() of the min/max production rate of the samples}
+\item{colorField}{field for colour to be attributed to lines in the plot}
+}
+\value{
+A list of length 2:
+  \describe{
+    \item{\code{[[1]]}}{A data frame (\code{volDF}) containing the
+      volume-scaled helium production rates for all samples across all
+      source rock volumes. Columns include \code{vol},
+      \code{HeRateMin}, \code{HeRateMean}, and \code{HeRateMax} in units
+      of mol He / year.}
+    \item{\code{[[2]]}}{A \code{ggplot2} object showing a log-log source
+      area plot of mean helium production rate vs. source rock volume,
+      coloured by \code{ModelLabel}. The secondary y-axis shows equivalent
+      mass rates in kg / year.}
+  }
 }
 \description{
-Creates a ggplot2 that scales the helium production rate of samples with increasing source rock volume (1km3 to 1000km3)
+Generates a log-log plot of helium production rates scaled across a range of
+source rock volumes (0.1 to 100 km\eqn{^3}). Each sample in the summary
+dataframe produced by \code{\link{monteSum}} represented as a line showing
+how total helium production (mol / year) scales with increasing source rock volume.
+A secondary y-axis shows equivalent rates in kg / year.
+}
+\details{
+The function takes the summary dataframe from \code{\link{monteSum}} and
+iterates over a sequence of source rock volumes from 0.1 to 100 km\eqn{^3}.
+For each volume, the per-m\eqn{^3} rates are scaled to per-km\eqn{^3} rates
+(multiplied by 1\eqn{\times}10\eqn{^9}) and then multiplied by the volume
+to give a total production rate for a source rock body of that size.
+
+The resulting \code{volDF} dataframe and \code{ggplot2} object are both
+returned as a list, allowing the user to access the underlying data or
+further customise the plot.
 }
 \examples{
-data("monteDataLithCat")
-df <- monteProd(lithCat,1000)
-monteHePlot(df, ribbon=TRUE)
+data("structuredDF")
+filtered <- structuredDF[!is.na(structuredDF$uMean), ]
+df <- monteProd(filtered, numGen = 50, rad = TRUE)
+sumDF <- monteSum(df, summaryField = "Sample")
+result <- monteHePlot(sumDF, colorField ="Sample")
+result[[2]] # view the plot
 
-List references
+}
+\references{
+See Ardakani et al. (2026) for discussions of these plots and their use in
+hydrogen and helium exploration
+}
+\seealso{
+\code{\link{monteSum}} to generate the required input,
+  \code{\link{monteH2Plot}} for the equivalent hydrogen plot,
+  \code{\link{monteProd}} for the main Monte Carlo workflow.
 }
