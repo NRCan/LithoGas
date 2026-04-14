@@ -1,126 +1,185 @@
 #' @title monteProd
 #'
 #' @description
-#' Monte Carlo model of Warr et al (2023) implemented in R.
+#' The main wrapper function for Monte Carlo modelling of hydrogen and helium
+#' production rates via radiolysis and serpentinization. The function loops
+#' over each row of a structured input dataframe, generates \code{numGen} Monte Carlo
+#' iterations per sample, and returns all trials combined in a single dataframe.
 #'
 #' @details
-#' The monteProd() function takes a structured dataframe and grabs data from the dataframe by column name. As such, look at example data (lithCat and rockProps) for structure. This outputs a dataframe including all Monte Carlo trials for all input samples. Production rates (H2total, Hetotal) are in rates of mols gas / m3 rock / year following Warr et al. (2023).
+#' For each sample row in \code{structDF}, \code{monteProd} performs the
+#' following steps:
 #'
-#' @param sampDF Structured sample dataframe
-#' @param numGen Number of Monte Carlo simulations
+#' \enumerate{
+#'   \item Checks which input data are available (rock properties, age,
+#'     radiolysis inputs, iron speciation).
+#'   \item Expands the sample row to \code{numGen} rows for Monte Carlo
+#'     trials.
+#'   \item Generates an age distribution from geochronologic uncertainty
+#'     (\code{AgeMa} +/- \code{AgeUnc2S_Ma}/2) if age columns are present.
+#'   \item Assigns rock density and porosity either from sample-specific
+#'     distributions or from lithology defaults via
+#'     \code{\link{joinLitProps}} if \code{litLith} is provided and
+#'     sample-specific values are absent.
+#'   \item Optionally runs serpentinization modelling via
+#'     \code{\link{monteSerpFeSpecies}} if \code{serp = TRUE} and iron
+#'     speciation data and age data are present, or total-Fe serpentinization if
+#'     \code{allowTotalFeSerp = TRUE}.
+#'   \item Optionally runs radiolysis modelling via \code{\link{monteRad}}
+#'     if \code{rad = TRUE} and U, Th, K, and age data are present.
+#' }
+#'
+#' Any missing columns from the expected input schema are added as \code{NA}
+#' automatically. Parameters are called from the input dataframe by name, so
+#' they must match exactly to templates must match the required
+#' input fields — see \code{\link{structuredDF}} for the expected structure.
+#'
+#' Production rates (\code{RadMolsH2Rate}, \code{SerpMolH2Rate},
+#' \code{RadMolsHeRate}) are in units of mol gas / m\eqn{^3} rock / year,
+#' following Warr et al. (2023) and Ardakani et al. (in review).
+#'
+#' @param structDF A data frame containing one or more lithogeochemical
+#'   samples. Each row is one sample. Column names must match the required
+#'   input schema. See \code{structuredDF} for structure. Missing columns
+#'   are added as \code{NA} automatically.
+#' @param numGen Integer. Number of Monte Carlo iterations to run per sample.
+#' @param rad Logical. If \code{TRUE}, radiolysis calculations of hydrogen
+#'   and helium production rates are performed via \code{\link{monteRad}}.
+#'   Requires \code{uMin}/\code{uMax}/\code{uMean}/\code{uSD},
+#'   \code{thMin}/\code{thMax}/\code{thMean}/\code{thSD},
+#'   \code{kMin}/\code{kMax}/\code{kMean}/\code{kSD}, and age columns.
+#'   Defaults to \code{FALSE}.
+#' @param serp Logical. If \code{TRUE}, serpentinization calculations of
+#'   hydrogen production rates are performed using iron speciation methods
+#'   via \code{\link{monteSerpFeSpecies}}. Requires \code{Fe2O3Min},
+#'   \code{Fe2O3Max}/\code{Fe2O3Mean}/\code{Fe2O3SD}/\code{FeOMin},
+#'   \code{FeOMax}/\code{FeOMean}/\code{FeOSD}/\code{Fe3FeTInitalRatMin},
+#'   \code{Fe3FeTInitalRatMax}/\code{Fe3FeTInitalRatMean},
+#'   \code{Fe3FeTInitalRatSD}, and age columns
+#'   Defaults to \code{FALSE}.
+#' @param allowTotalFeSerp Logical. If \code{TRUE}, total iron
+#'   serpentinization calculations are used in lieu of iron speciation
+#'   methods when \code{serp = FALSE}. Requires total \code{Fe2O3TMin},
+#'   \code{Fe2O3TMax}/\code{Fe2O3TMean}/\code{Fe2O3TSD}/\code{Fe3FeTInitalRatMin},
+#'   \code{Fe3FeTInitalRatMax}/\code{Fe3FeTInitalRatMean},
+#'   \code{Fe3FeTInitalRatSD}/\code{Fe3FeTRatCurMin}/\code{Fe3FeTRatCurMax},
+#'   \code{Fe3FeTRatCurMean}/\code{Fe3FeTRatCurSD}, and age columns.
+#'   Defaults to \code{FALSE}.
+#'
+#' @return A data frame containing all Monte Carlo trials for all input
+#'   samples bound by rows. Includes all original input columns plus sampled
+#'   petrophysical properties, age distributions, and computed production
+#'   rates depending on which models were run.
+#'
+#' @references
+#' Warr, O., Song, M., Sherwood Lollar, B. (2023). The application of Monte
+#' Carlo modelling to quantify in situ hydrogen and associated element
+#' production in the deep subsurface. Frontiers in Earth Science, v.11.
+#'
+#' Ardakani, O.A., Sherwood Lollar, B., Coutts, D.S., Warr, O.A., et al.
+#' (in Review).
+#'
+#' @seealso \code{\link{monteRad}}, \code{\link{monteSerpFeSpecies}},
+#'   \code{\link{joinLitProps}}, \code{\link{rtrunc}}, \code{\link{monteSum}}
 #'
 #' @examples
-#' data("monteDataLithCat")
-#' monteProd(lithCat,1000)
+#' data("structuredDF")
+#' monteProd(structuredDF,500,TRUE,TRUE,TRUE)
 #'
 #' @export
-monteProd <- function(sampDF,numGen){
+monteProd <- function(structDF,numGen,rad=FALSE,serp=FALSE,allowTotalFeSerp=FALSE){
 
-  #Constants that  are used explicitly (not as parts of distributions) just set here for easier programming
-  SA <- 1.5
-  SB <- 1.25
-  SG <- 1.14
+  resultsDF <- NULL
 
-  GH2A <- 1.32
-  GH2B <- 0.6
-  GH2G <- 0.25
-  AConstant <- 6.023E23
+  #Set up columns that we need - add any missing columns
+  desired_cols <- c("litLith", "AgeMa",   "AgeUnc2S_Ma", "AgeReference",
+                    "Fe3FeTInitalRatMin",  "Fe3FeTInitalRatMax",  "Fe3FeTInitalRatMean",
+                    "Fe3FeTInitalRatSD",   "Fe2O3Min", "Fe2O3Max", "Fe2O3Mean",
+                    "Fe2O3SD", "FeOMin",  "FeOMax",  "FeOMean", "FeOSD",
+                    "Fe2O3TMin", "Fe2O3TMax", "Fe2O3TMean", "Fe2O3TSD",
+                    "Fe3FeTRatCurMin", "Fe3FeTRatCurMax", "Fe3FeTRatCurMean",
+                    "Fe3FeTRatCurSD", "uMin",    "uMax", "uMean", "uSD",
+                    "thMin", "thMax", "thMean", "thSD", "kMin", "kMax", "kMean",
+                    "kSD",     "rockDenMin",   "rockDenMax", "rockDenMean",
+                    "rockDenSD",    "porMin",  "porMax", "porMean", "porSD",
+                    "fluDenMin", "fluDenMax", "fluDenMean", "fluDenSD")
 
-  outDF <- NULL
+  missing_cols <- setdiff(desired_cols, names(structDF))  # find cols in desired but not in A
+  structDF[missing_cols] <- NA
 
-  sampDF$Sample <- as.character(sampDF$Sample)
-  data(CRPPData)
-  for (i in 1:nrow(sampDF)){
-    print(paste(i, "of", nrow(sampDF)))
-    samp <- sampDF[i,]
-    sampLong <- do.call("rbind", replicate(numGen, samp, simplify = FALSE))
+  for(i in 1:nrow(structDF)){
+    print(i)
+    monteDF <- NULL
+    sampDF <- structDF[i,]
 
-    #perfect distribution function
-    rnorm2 <- function(n,mean,sd) { mean+sd*scale(rnorm(n)) }
+    #CHECK INPUTS FOR EACH SAMPLE
+    #check rock properties - rockDen, rockPorosity, litLith
+    rockDenCheck <- !is.na(sampDF%>%select(rockDenMin, rockDenMax, rockDenMean, rockDenSD))
+    porCheck <- !is.na(sampDF%>%select(porMin, porMax, porMean, porSD))
 
-    rtrunc <- function(n, distr, lower = -Inf, upper = Inf, ...){
-      makefun <- function(prefix, FUN, ...){
-        txt <- paste(prefix, FUN, "(x, ...)", sep = "")
-        function(x, ...) eval(parse(text = txt))
-      }
-      if(length(n) > 1) n <- length(n)
-      pfun <- makefun("p", distr, ...)
-      qfun <- makefun("q", distr, ...)
-      lo <- pfun(lower, ...)
-      up <- pfun(upper, ...)
-      u <- runif(n, lo, up)
-      qfun(u, ...)
+    sampDF$litLith[sampDF$litLith == ""] <- NA
+    litLithCheck <- !is.na(sampDF$litLith)
+    litLithCheck <- sampDF$litLith %in% unique(CRPPData$Lithology)
+
+    #check radiolysis inputs - U, Th, K, fluDen
+    uCheck <- !is.na(sampDF%>%select(uMin, uMax, uMean, uSD))
+    thCheck <- !is.na(sampDF%>%select(thMin, thMax, thMean, thSD))
+    kCheck <- !is.na(sampDF%>%select(kMin, kMax, kMean, kSD))
+
+    #check serpentinization inputs - Fe2O3, FeO,
+    SerpCheck <- !is.na(sampDF%>%select(Fe3FeTInitalRatMin, Fe3FeTInitalRatMax, Fe3FeTInitalRatMean, Fe3FeTInitalRatSD, Fe2O3Min, Fe2O3Max, Fe2O3Mean, Fe2O3SD, FeOMin, FeOMax, FeOMean, FeOSD))
+    FeTCheck <- !is.na(sampDF%>%select(Fe2O3TMin,Fe2O3TMax,Fe2O3TMean,Fe2O3TSD,Fe3FeTInitalRatMin, Fe3FeTInitalRatMax, Fe3FeTInitalRatMean, Fe3FeTInitalRatSD, Fe3FeTRatCurMin, Fe3FeTRatCurMax, Fe3FeTRatCurMean, Fe3FeTRatCurSD))
+
+    #check age inputs - age + uncertainty
+    ageCheck <- !is.na(sampDF%>%select(AgeMa,AgeUnc2S_Ma))
+    #END INPUTS CHECK
+
+    #Reproduce the input data for the sample for the number of rows as number of numGen
+    monteDF <- sampDF[rep(seq_len(nrow(sampDF)), each = numGen), ] #extend the sample information downards
+
+    #If age inputs are valid use normal distribution to generate ages
+    if(sum(ageCheck)==2){
+      Age <-  as.data.frame(rnorm(numGen, #Generate distribution of ages based on geochronologic uncertainty
+                                  mean = monteDF$AgeMa,
+                                  sd = monteDF$AgeUnc2S_Ma/2))
+      colnames(Age) <-"Age" #update column name
+      monteDF <- cbind(monteDF,Age)
+    } else {
+      #print(paste("Issues with sample ", i, " age"))
     }
 
-    #A shameful if string to control where we get rock properties from - better than spending more time figuring out the logic here (columns missing or NA)
-    if(!"litLith" %in% colnames(samp)){ # if the litLith column does not exist (TRUE) - we have to the listed rock densities and porositites
-
-      rockDen <- as.data.frame(rtrunc(numGen,"norm",lower=samp$rockDenMin,upper=samp$rockDenMax,mean=samp$rockDenMean,sd=samp$rockDenSD)) #rock density
+    #If no rock properties add those using the joinLitProps function.
+    if(sum(litLithCheck)==1 & sum(rockDenCheck)<4 & sum(porCheck)<4){
+      monteDF <- cbind(monteDF,joinLitProps(sampDF,numGen))
+    } else if (sum(rockDenCheck)==4 & sum(porCheck)==4){
+      rockDen <- as.data.frame(rtrunc(numGen, "norm",
+                                      lower = sampDF$rockDenMin,
+                                      upper = sampDF$rockDenMax,
+                                      mean = sampDF$rockDenMean,
+                                      sd = sampDF$rockDenSD))
       colnames(rockDen) <- "rockDen"
-
-      porosity <- as.data.frame(rtrunc(numGen,"norm",lower=samp$porMin,upper=samp$porMax,mean=samp$porMean,sd=samp$porSD)) #%>% rename(porosity=x) #porosity
+      porosity <- as.data.frame(rtrunc(numGen, "norm",
+                                       lower = sampDF$porMin,
+                                       upper = sampDF$porMax,
+                                       mean = sampDF$porMean,
+                                       sd = sampDF$porSD))
       colnames(porosity) <- "porosity"
-
-    }else if (is.na(samp$litLith)){ #if the litLith exists and is empty - we have to use the listed rock densities and porosities
-
-      rockDen <- as.data.frame(rtrunc(numGen,"norm",lower=samp$rockDenMin,upper=samp$rockDenMax,mean=samp$rockDenMean,sd=samp$rockDenSD)) #rock density
-      colnames(rockDen) <- "rockDen"
-
-      porosity <- as.data.frame(rtrunc(numGen,"norm",lower=samp$porMin,upper=samp$porMax,mean=samp$porMean,sd=samp$porSD)) #%>% rename(porosity=x) #porosity
-      colnames(porosity) <- "porosity"
-
-    } else { # if the column exsists and is has a value in it, we'll try to find that value in the Enkin database and use those densities and porosities
-      data("CRPPData")
-      litProps <- CRPPData %>%
-        filter(Lithology==samp$litLith )
-
-      rockDen <- as.data.frame(rtrunc(numGen,"norm",lower=litProps$rockDenMin,upper=litProps$rockDenMax,mean=litProps$rockDenMean,sd=litProps$rockDenSD)) #rock density
-      colnames(rockDen) <- "rockDen"
-
-      porosity <- as.data.frame(rtrunc(numGen,"norm",lower=litProps$porMin,upper=litProps$porMax,mean=litProps$porMean,sd=litProps$porSD)) #%>% rename(porosity=x) #porosity
-      colnames(porosity) <- "porosity"
+      monteDF <- cbind(monteDF,data.frame(rockDen,porosity))
     }
 
-    fluDen <- as.data.frame(rtrunc(numGen,"norm",lower=samp$fluDenMin,upper=samp$fluDenMax,mean=samp$fluDenMean,sd=samp$fluDenSD)) #Generate the fluid density
-    colnames(fluDen) <- "fluDen"
 
-    Uppm <- as.data.frame(rtrunc(numGen,"norm",lower=samp$uMin,upper=samp$uMax,mean=samp$uMean,sd=samp$uSD)) #Generate the uranium distirbution
-    colnames(Uppm) <- "Uppm"
+    if(serp==TRUE & sum(SerpCheck)==12 & sum(ageCheck)==2){
+      monteDF <- cbind(monteDF,monteSerpFeSpecies(monteDF,numGen))
+    } else if (allowTotalFeSerp==TRUE & sum(FeTCheck)==12){
+      monteDF <- cbind(monteDF,monteSerpFeTotal(monteDF,numGen))
+    }
 
-    Thppm <- as.data.frame(rtrunc(numGen,"norm",lower=samp$thMin,upper=samp$thMax,mean=samp$thMean,sd=samp$thSD)) #Generate the thorium distribution
-    colnames(Thppm) <- "Thppm"
+    if(rad==TRUE & sum(uCheck)==4 & sum(thCheck)==4 & sum(kCheck)==4 &  sum(ageCheck)==2){
+      monteDF <- cbind(monteDF,monteRad(monteDF,numGen))
+    }
 
-    Kpct <- as.data.frame(rtrunc(numGen,"norm",lower=samp$kMin,upper=samp$kMax,mean=samp$kMean,sd=samp$kSD)) #generate the potassium distribution
-    colnames(Kpct) <- "Kpct"
-
-    propDF <- cbind(rockDen,porosity,fluDen,Uppm,Thppm,Kpct) #bind into a dataframe
-
-    #main calculations as one big mutate that calculates per mol/m3/year
-    propDF <- propDF %>% mutate(
-      sysDen = (rockDen*(1-(porosity/100)))+(fluDen*(porosity/100)),
-      W = ((porosity/100)*fluDen)/((1-(porosity/100))*rockDen),
-      EKA = Kpct*0, #this is correct, because potassium does not decay through alpha decay
-      EKB = Kpct*4.88085E15,
-      EKG = Kpct*1.51668E15,
-      EThA = Thppm*3.80732E14,
-      EThB = Thppm*1.7039E14,
-      EThG = Thppm*2.93351E14,
-      EUA = Uppm*1.3065E15,
-      EUB = Uppm*9.11259E14,
-      EUG = Uppm*7.0529E14,
-      ENetA = ((EKA+EThA+EUA)*W*SA)/(1+W*SA),
-      ENetB = ((EKB+EThB+EUB)*W*SB)/(1+W*SB),
-      ENetG = ((EKG+EThG+EUG)*W*SG)/(1+W*SG),
-      YH2A = ((ENetA*GH2A)/AConstant)*sysDen*10,
-      YH2B = ((ENetB*GH2B)/AConstant)*sysDen*10,
-      YH2G = ((ENetG*GH2G)/AConstant)*sysDen*10,
-      H2total = YH2A + YH2B + YH2G,  #hydrogen production
-      Hetotal = (((3.115E6+1.272E5)*Uppm+7.71E5*Thppm)/AConstant)*sysDen*1E6 #helium production
-    )
-
-    outDF <- bind_rows(outDF,cbind(sampLong,propDF))
-
+    resultsDF <- bind_rows(resultsDF,monteDF)
   }
 
-  return(outDF)
+  return(resultsDF)
 }

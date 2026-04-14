@@ -1,36 +1,99 @@
 #' @title monteSum
 #'
 #' @description
-#' Returns a summarized dataframe (one row per sample) from the output dataframe of the monteProd() function.
+#' Summarises the full Monte Carlo trial dataframe produced by
+#' \code{\link{monteProd}} into one row per sample group, returning the
+#' minimum, mean, and maximum production rates for hydrogen and helium across
+#' all trials. This summary dataframe is the required input for
+#' \code{\link{monteH2Plot}} and \code{\link{monteHePlot}}.
 #'
 #' @details
-#' This function uses a "groupby() %>% summaize()" to produce a min/max/mean/standard deviation for both the hydrogen production and helium production of the input samples.  Production rates (columns ending in H2 and He) are in rates of mols gas / m3 / year following Warr et al. (2023).
+#' The function groups \code{monteDF} by \code{summaryField} using
+#' \code{group_by(!!sym(summaryField))} to allow a user-defined grouping
+#' column to be passed as a string. Within each group, min/mean/max are
+#' computed for serpentinization hydrogen rates, radiolysis hydrogen rates,
+#' and radiolysis helium rates. Combined total hydrogen rates
+#' (\code{H2RateMin}, \code{H2RateMean}, \code{H2RateMax}) are computed as
+#' the sum of serpentinization and radiolysis contributions.
 #'
-#' @param modelDF Monte Carlo model dataframe produced by the monteProd() function.
+#' Any missing rate columns (\code{SerpMolH2Rate}, \code{RadMolH2Rate},
+#' \code{RadMolHeRate}) are added as \code{NA} automatically, so the function
+#' handles outputs from radiolysis-only, serpentinization-only, or combined
+#' model runs without error.
+#'
+#' All production rate output columns are in units of
+#' mol gas / m\eqn{^3} rock / year.
+#'
+#' @param monteDF A data frame of Monte Carlo trials produced by
+#'   \code{\link{monteProd}}. Each row is one Monte Carlo trial for one
+#'   sample. Must contain a column matching \code{summaryField}.
+#' @param summaryField Character string. The name of the column in
+#'   \code{monteDF} to group by (e.g. \code{"Sample"}, \code{"litLith"}).
+#'   Passed using tidy evaluation via \code{!!sym()}.
+#'
+#' @return A data frame with one row per unique value of \code{summaryField}
+#'   and the following columns:
+#'   \describe{
+#'     \item{\code{SerpH2Min}, \code{SerpH2Mean}, \code{SerpH2Max}}{Min,
+#'       mean, and max serpentinization hydrogen production rate
+#'       (mol H\eqn{_2} / m\eqn{^3} / year).}
+#'     \item{\code{RadH2Min}, \code{RadH2Mean}, \code{RadH2Max}}{Min,
+#'       mean, and max radiolysis hydrogen production rate
+#'       (mol H\eqn{_2} / m\eqn{^3} / year).}
+#'     \item{\code{H2RateMin}, \code{H2RateMean}, \code{H2RateMax}}{Min,
+#'       mean, and max total hydrogen production rate (serp + rad)
+#'       (mol H\eqn{_2} / m\eqn{^3} / year).}
+#'     \item{\code{RadHeMin}, \code{RadHeMean}, \code{RadHeMax}}{Min,
+#'       mean, and max radiolysis helium production rate
+#'       (mol He / m\eqn{^3} / year).}
+#'     \item{\code{HeRateMin}, \code{HeRateMean}, \code{HeRateMax}}{Min,
+#'       mean, and max total helium production rate
+#'       (mol He / m\eqn{^3} / year).}
+#'   }
+#'
+#' @seealso \code{\link{monteProd}} to generate the input dataframe,
+#'   \code{\link{monteH2Plot}} and \code{\link{monteHePlot}} for
+#'   visualising the summary output.
 #'
 #' @examples
-#' data("monteDataLithCat")
-#' df <- monteProd(lithCat,1000)
-#' monteSum(df)
+#' data("structuredDF")
+#' df <- monteProd(structuredDF, numGen = 50, rad = TRUE, serp = TRUE)
+#' monteSum(df, summaryField = "Sample")
 #'
 #' @export
-monteSum <- function(modelDF){
-  sumDF <- modelDF %>% group_by(Sample) %>% summarize(minH2=min(H2total),
-                                                      maxH2=max(H2total),
-                                                      meanH2=mean(H2total),
-                                                      sdH2=sd(H2total),
-                                                      minHe=min(Hetotal),
-                                                      maxHe=max(Hetotal),
-                                                      meanHe=mean(Hetotal),
-                                                      sdHe=sd(Hetotal))
+monteSum <- function(monteDF,summaryField){
 
-  otherCats <- modelDF %>% select(colnames(modelDF)[(!colnames(modelDF)  %in% c("litLith", "rockDenMin", "rockDenMax", "rockDenMean", "rockDenSD", "porMin", "porMax", "porMean", "porSD", "fluDenMin", "fluDenMax", "fluDenMean", "fluDenSD", "uMin", "uMax", "uMean", "uSD", "thMin", "thMax", "thMean", "thSD", "kMin", "kMax" ,"kMean", "kSD", "rockDen", "porosity", "fluDen", "Uppm", "Thppm", "Kpct", "sysDen", "W", "EKA", "EKB", "EKG", "EThA", "EThB", "EThG",  "EUA", "EUB", "EUG", "ENetA", "ENetB", "ENetG", "YH2A", "YH2B", "YH2G", "H2total", "Hetotal", "litLith"))])
-  otherCats <- otherCats[!duplicated(otherCats), ]
-  if(length(colnames(otherCats))>1){
-    sumProd <- otherCats %>% left_join(sumDF, by="Sample")
-  } else {
-    sumProd <- sumDF
-  }
+  #Add any missing columns to the monte carlo results
+  desired_cols <- c("SerpMolH2Rate", "RadMolH2Rate",   "RadMolHeRate")
+  missing_cols <- setdiff(desired_cols, names(monteDF))  # find cols in desired but not in A
+  monteDF[missing_cols] <- NA
 
-  return(sumProd)
+  # Replace infinite values with NA across all numeric columns
+  monteDF <- monteDF %>%
+    mutate(across(where(is.numeric), ~ ifelse(is.infinite(.), NA, .)))
+
+  #groupby the chosen field and summarize the rates
+  sumDF <- monteDF %>%
+    group_by(!!sym(summaryField)) %>%
+    summarize(SerpH2Min = min(SerpMolH2Rate,na.rm=TRUE),
+              SerpH2Mean = mean(SerpMolH2Rate,na.rm=TRUE),
+              SerpH2Max = max(SerpMolH2Rate,na.rm=TRUE),
+              RadH2Min = min(RadMolH2Rate,na.rm=TRUE),
+              RadH2Mean = mean(RadMolH2Rate,na.rm=TRUE),
+              RadH2Max = max(RadMolH2Rate,na.rm=TRUE),
+              H2RateMin = SerpH2Min + RadH2Min,
+              H2RateMean = SerpH2Mean + RadH2Mean,
+              H2RateMax = SerpH2Max + RadH2Max,
+              RadHeMin = min(RadMolHeRate ,na.rm=TRUE),
+              RadHeMean = mean(RadMolHeRate ,na.rm=TRUE),
+              RadHeMax = max(RadMolHeRate ,na.rm=TRUE),
+              HeRateMin = RadHeMin,
+              HeRateMean = RadHeMean,
+              HeRateMax = RadHeMax)
+
+  # Replace any Inf/-Inf produced by min()/max() on all-NA groups with NA
+  sumDF <- sumDF %>%
+    mutate(across(where(is.numeric), ~ ifelse(is.infinite(.), NA, .)))
+
+  return(sumDF)
 }
