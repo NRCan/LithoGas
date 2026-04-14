@@ -1,13 +1,27 @@
-Package: Radiolysis
+Package: LithoGas
 Type: Package
-Title: Fast Monte Carlo Modelling for Geologic Hydrogen and Helium 
+Title: Monte Carlo Modelling for Geologic Hydrogen and Helium
 Version: 0.1.0
-Author: Daniel Coutts, Oliver Warr
-Maintainer: Daniel Coutts <daniel.coutts@nrcan-rncan.gc.ca>
-Description: The Radiolysis package is the implementation of the Warr et al. (2023) Monte Carlo models simulating the radiolysis of water and the production of hydrogen and helium in that process. Here we extend the radiolysis models to economic estimations of hydrogen and helium, by incorporating economic source area plots and deep time production estimations.
-    Warr, O., Song, M., Sherwood Lollar, B., 2023, The application of Monte Carlo modelling to quantify in situ hydrogen and associated element production in the deep subsurface, Frontiers in Earth Science, v.11.
-Imports: dplyr, ggplot2
-License: CC BY-NC
+Authors@R: c(
+    person("Daniel", "Coutts", email = "daniel.coutts@nrcan-rncan.gc.ca",
+           role = c("aut", "cre")),
+    person("Oliver", "Warr", role = "aut"),
+    person("Omid", "Ardakani", role = "aut"),
+    person("Barbara", "Sherwood Lollar", role = "aut"))
+Description: Provides Monte Carlo modelling of hydrogen and helium generation
+    rates via radiolysis and serpentinization models, extended to economic
+    estimations incorporating source area volume plots and deep time production
+    estimates. Implements radiolysis methods of Warr et al. (2023)
+   <doi:10.3389/feart.2023.1150086> and serpentinization methods of
+    Ardakani et al. (2026) <doi:XXXXXXXX>.
+License: file LICENSE
 Encoding: UTF-8
 LazyData: true
+Imports:
+    dplyr,
+    ggplot2,
+    magrittr,
+    rlang,
+    stats,
+    utils
 RoxygenNote: 7.3.2
