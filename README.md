@@ -143,30 +143,60 @@ Note: monteProd() evaluates each input row/sample for the presence of all requir
 
 | Dataset | Description |
 |---|---|
-| `monteDataLithCat` | Example input using lithology-based rock properties from `CRPPData` |
-| `monteDataRockProps` | Example input using sample-specific rock property distributions |
+| `structuredDF` | Example input for using both known and lithology-based rock properties from `CRPPData` |
 | `CRPPData` | Summarised Canadian Rock Physical Property Database (Enkin 2018), grouped by lithology |
 
 ---
 
-## Output
+## Outputs
 
 `monteProd()` returns a long-format dataframe with `numGen` rows per sample, containing all input columns plus computed outputs. Key output columns:
 
 | Column | Description | Units | Model |
 |---|---|---|---|
-| `RadMolsH2Rate` | Radiolytic H₂ production rate | mol H₂ / m³ rock / year | Radiolysis |
-| `RadMolsHeRate` | Radiolytic He production rate | mol He / m³ rock / year | Radiolysis |
-| `RadMassH2Rate` | Radiolytic He production rate | kg H₂ / m³ rock / year | Radiolysis |
-| `RadMassHeRate` | Radiolytic He production rate | kg He / m³ rock / year | Radiolysis |
-| `RadMolH2` | Cumulative radiolytic H₂ production over sample age | mol H₂ | Radiolysis |
-| `RadMolHe` | Cumulative radiolytic He production over sample age | mole He | Radiolysis |
-| `RadMassH2` | Cumulative radiolytic H₂ production over sample age | kg H₂ | Radiolysis |
-| `RadMolHe` | Cumulative radiolytic He production over sample age | kg He | Radiolysis |
-| `SerpMolH2` | Cumulative serpentinization H₂ production over sample age | mol H₂ | Serpentinization |
-| `SerpMassH2` | Cumulative serpentinization H₂ production over sample age | mass H₂ | Serpentinization |
-| `SerpMassH2Rate` | Serpentinization H₂ production rate | mol H₂ / m³ rock / year  | Serpentinization |
-| `SerpMolH2Rate` | Serpentinization H₂ production rate | kg H₂ / m³ rock / year  | Serpentinization |
+| `RadH2Rate_molm3yr` | Radiolytic H₂ production rate | mol H₂ / m³ rock / year | Radiolysis |
+| `RadHeRate_molm3yr` | Radiolytic He production rate | mol He / m³ rock / year | Radiolysis |
+| `RadMolH2_molm3` | Cumulative radiolytic H₂ production over sample age | mol/m³ H₂ | Radiolysis |
+| `RadMolHe_molm3` | Cumulative radiolytic He production over sample age | mol/m³ He | Radiolysis |
+| `SerpH2Rate_molm3yr` | Serpentinization H₂ production rate | mol H₂ / m³ rock / year  | Serpentinization |
+| `SerpMolH2_molm3` | Cumulative serpentinization H₂ production over sample age | mol H₂ | Serpentinization |
+
+
+`monteSum()` returns a wide-format dataframe of H₂/He generation rates summarized by selected field (i.e., by a `group_by()`). All rates are in  mol gas / m³ rock / year Key output columns:
+
+| Column | Description |
+|---|---|
+| `SerpH2RateMin_molm3yr` | Minimum rate of H₂ generation via serpentinization |
+| `SerpH2RateMean_molm3yr` | Mean rate of H₂ generation via serpentinization |
+| `SerpH2RateMax_molm3yr` | Maximum rate of H₂ generation via serpentinization |
+| `RadH2RateMin_molm3yr` | Minimum rate of H₂ generation via radiolysis |
+| `RadH2RateMean_molm3yr` | Mean rate of H₂ generation via radiolysis |
+| `RadH2RateMax_molm3yr` | Maximum rate of H₂ generation via radiolysis |
+| `H2RateMin_molm3yr` | Cumulative minimum, min H₂ by radiolysis + min H2 by serpentinization |
+| `H2RateMean_molm3yr` | Cumulative mean, mean H₂ by radiolysis + mean H2 by serpentinization  |
+| `H2RateMax_molm3yr` | Cumulative maximum max H₂ by radiolysis + max H2 by serpentinization  |
+| `RadHeRateMin_molm3yr` | Minimum rate of He generation via radiolysis |
+| `RadHeRateMean_molm3yr` | Mean rate of He generation via radiolysis |
+| `RadHeRateMax_molm3yr` | Maximum rate of He generation via radiolysis |
+| `HeRateMin_molm3yr` | Minimum rate of He generation via radiolysis |
+| `HeRateMean_molm3yr` | Mean rate of He generation via radiolysis |
+| `HeRateMax_molm3yr` | Maximum rate of He generation via radiolysis |
+
+^ `RadHeRateMin_molm3yr` is equal to `HeRateMin_molm3yr`. `HeRateMin_molm3yr`, was included to keep same formatting as `H2RateMean_molm3yr`
+
+`monteH2Plot()` and `monteHePlot()` return a list: [[1]] a long-format dataframe used for plotting, where each summarized entry from `monteSum()` has multiple rows, and [[2]] being a ggplot. The dataframe includes yearly generation rates each sample scaled from 0.1 km³ to 100 km³. Examples below are for H₂ via `monteH2Plot()`, but the same columns are generated for He `monteHePlot()`
+
+
+[[1]] Dataframe output for plotting
+
+| Column | Description |
+|---|---|
+| Sample/Summarized field | Minimum rate of H₂ generation via serpentinization |
+| `H2Rate` Min/Mean/Max `_molm3yr` | Input rates from `monteSum()` |
+| `vol_km` | volume that the following rates are scaled to |
+| `H2Rate` Min/Mean/Mean `_molyr` | H₂ generation rate for the volume specified in `vol_km` |
+
+[[2]] ggplot - an example ggplot of log-log scaled sourve volume plot, note that the function can be found using view (e.g., `View(monteH2Plot())` so ggplot aesthetics can be manipulated.
 
 ---
 
