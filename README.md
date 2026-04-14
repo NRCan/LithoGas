@@ -37,11 +37,11 @@ devtools::install_github("yourusername/LithoGas")
 ```r
 library(LithoGas)
 
-# Load the example dataset (lithology-based rock properties)
-data("monteDataLithCat")
+# Load the example dataset (example structured dataframe)
+data("structuredDF")
 
 # Run Monte Carlo simulation with radiolysis (50 trials per sample)
-results <- monteProd(lithCat, numGen = 50, rad = TRUE)
+results <- monteProd(structuredDF, numGen = 50, rad = TRUE)
 
 # Summarise results by sample
 sumDF <- monteSum(results, summaryField = "Sample")
