@@ -19,9 +19,11 @@ A list of length 2:
   \describe{
     \item{\code{[[1]]}}{A data frame (\code{volDF}) containing the
       volume-scaled hydrogen production rates for all samples across all
-      source rock volumes. Columns include \code{Sample}, \code{vol},
-      \code{H2RateMin}, \code{H2RateMean}, and \code{H2RateMax} in units
-      of mol H\eqn{_2} / year.}
+      source rock volumes. Columns include \code{Sample} - sample name,
+      \code{vol_km} - rock volume in kilometers cubed,
+      \code{H2RateMin_molyr} - minimum H2 generation rate in mols/year,
+      \code{H2RateMean_molyr} - mean H2 generation rate in mols/year, and
+      \code{H2RateMax_molyr} - maximum H2 generation rate in mols/year}
     \item{\code{[[2]]}}{A \code{ggplot2} object showing a log-log source
       area plot of mean hydrogen production rate vs. source rock volume,
       coloured by sample. The secondary y-axis shows equivalent mass

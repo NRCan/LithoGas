@@ -9,11 +9,13 @@ monteRad(DF, numGen)
 \arguments{
 \item{DF}{A data frame of Monte Carlo trials (\code{numGen} rows) for a
 single sample, as produced by \code{\link{monteProd}}. Must contain
-columns for fluid density, U, Th, K distributions (min/max/mean/SD),
-rock density (\code{rockDen}), porosity, and age (\code{Age}).}
+columns for fluid density, U, Th, K, rock distributions (min/max/mean/SD).
+The population of rock density (\code{rockDen}) , porosity
+(\code{porosity}), and age (\code{Age}) from input distributions is handled
+prior, in \code{\link{monteProd}}.}
 
 \item{numGen}{Integer. Number of Monte Carlo simulations. Must match
-\code{nrow(DF)}.}
+\code{nrow(DF)}, generally passed from \code{\link{monteProd}}.}
 }
 \value{
 A data frame with \code{numGen} rows containing computed
@@ -21,19 +23,14 @@ A data frame with \code{numGen} rows containing computed
   newly computed columns are returned for binding by \code{\link{monteProd}}.
   Key output columns include:
   \describe{
-    \item{\code{RadMolsH2Rate}}{Hydrogen production rate
-      (mol H\eqn{_2} / m\eqn{^3} rock / year).}
-    \item{\code{RadMolsHeRate}}{Helium production rate
-      (mol He / m\eqn{^3} rock / year).}
-    \item{\code{RadMassH2Rate}}{Hydrogen production rate
-      (kg H\eqn{_2} / m\eqn{^3} rock / year).}
-    \item{\code{RadMassHeRate}}{Helium production rate
-      (kg He / m\eqn{^3} rock / year).}
-    \item{\code{RadMolH2}}{Cumulative hydrogen production
-      (mol H\eqn{_2} / m\eqn{^3} rock) over sample age.}
-    \item{\code{RadMolHe}}{Cumulative helium production
-      (mol He / m\eqn{^3} rock) over sample age.}
-    \item{\code{RadModel}}{Character label: \code{"Rad"}.}
+    \item{\code{RadMolsH2Rate}}{Hydrogen production rate (mol H\eqn{_2} / m\eqn{^3} rock / year).}
+    \item{\code{RadMolsHeRate}}{Helium production rate (mol He / m\eqn{^3} rock / year).}
+    \item{\code{RadMassH2Rate}}{Hydrogen production rate (kg H\eqn{_2} / m\eqn{^3} rock / year).}
+    \item{\code{RadMassHeRate}}{Helium production rate (kg He / m\eqn{^3} rock / year).}
+    \item{\code{RadMolH2}}{Cumulative hydrogen production (mol H\eqn{_2} / m\eqn{^3} rock) over sample age.}
+    \item{\code{RadMolHe}}{Cumulative helium production (mol He / m\eqn{^3} rock) over sample age.}
+    \item{\code{RadModel}}{Character label: \code{"Rad"} representing that it was produced
+    by the radiolysis model.}
   }
 }
 \description{

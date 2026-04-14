@@ -19,9 +19,11 @@ A list of length 2:
   \describe{
     \item{\code{[[1]]}}{A data frame (\code{volDF}) containing the
       volume-scaled helium production rates for all samples across all
-      source rock volumes. Columns include \code{vol},
-      \code{HeRateMin}, \code{HeRateMean}, and \code{HeRateMax} in units
-      of mol He / year.}
+      source rock volumes. Columns include
+      \code{vol_km} - in kilometers cubed,
+      \code{HeRateMin_molyr} - minimum He generation rate in mols/year,
+      \code{HeRateMean_molyr} - mean He generation rate in mols/year, and
+      \code{HeRateMax_molyr} - maximum He generation rate in mols/year}
     \item{\code{[[2]]}}{A \code{ggplot2} object showing a log-log source
       area plot of mean helium production rate vs. source rock volume,
       coloured by \code{ModelLabel}. The secondary y-axis shows equivalent
