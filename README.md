@@ -73,11 +73,14 @@ Input dataframe      ← structured dataframe - see examples
             └──► monteSerpFeSpecies()      ← function wihtin monteProd() that calculates H2 production rates via serpentinizationfrom geochemistry data with total iron concentration
       │                                      (when serp = TRUE and allowTotalFeSerp = TRUE)
       ▼
- monteSum()           ← summarises trials to min/mean/max per sample
+ monteSum() ← summarises trials to min/mean/max per sample
+      │
+            └──► monteH2Plot()        ← log-log source volume plot for H2 from output of monteSum()
+            └──► monteHePlot()        ← log-log source volume plot for He from output of monteSum()
       │
       ▼
- monteH2Plot()        ← log-log source volume plot for H2
- monteHePlot()        ← log-log source volume plot for He
+deepTimeProd() ← Back H2 and He generation rates following average serpentinziation rates, and radioactive decay law
+
 ```
 
 ---
@@ -94,6 +97,7 @@ Input dataframe      ← structured dataframe - see examples
 | `monteSerpFeTotal()` |  Serpentinization model for total iron concentration data (Fe₂O₃T). Called internally by `monteProd()` |
 | `joinLitProps()` | Assigns rock density and porosity distributions from `CRPPData` by lithology. Called internally by `monteProd()` |
 | `rtrunc()` | Generates random samples from a truncated normal (or any) distribution via the inverse CDF method |
+| `deepTimeProd()` | Back calculates the rates of H2 and He generation for a specified time interval following radioactive decay principles and average serpentinization rate |
 
 ### Summarising & Plotting
 
@@ -197,6 +201,7 @@ Note: monteProd() evaluates each input row/sample for the presence of all requir
 | `H2Rate` Min/Mean/Mean `_molyr` | H₂ generation rate for the volume specified in `vol_km` |
 
 [[2]] ggplot - an example ggplot of log-log scaled sourve volume plot, note that the function can be found using view (e.g., `View(monteH2Plot())` so ggplot aesthetics can be manipulated.
+
 
 ---
 
