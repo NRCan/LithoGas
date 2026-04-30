@@ -5,7 +5,7 @@
 #' @importFrom ggplot2 ggplot aes geom_line geom_ribbon theme_bw xlab ylab
 #'   scale_x_log10 scale_y_continuous sec_axis labs scale_y_log10
 #' @importFrom rlang sym
-#' @importFrom magrittr %>%
+#' @importFrom dplyr %>% mutate bind_rows rename_with ends_with
 "_PACKAGE"
 
 utils::globalVariables(c(
@@ -38,8 +38,7 @@ utils::globalVariables(c(
   "Fe3FeTInitalRatMean", "Fe3FeTInitalRatSD",
   "Fe3FeTRatCurMin", "Fe3FeTRatCurMax",
   "Fe3FeTRatCurMean", "Fe3FeTRatCurSD",
-  "mass",
-  "SerpH2_molm3", "SerpH2Rate_molm3yr",
+  "mass", "SerpH2_molm3", "SerpH2Rate_molm3yr",
 
   #monteSum()
   "sampleField",
@@ -52,6 +51,12 @@ utils::globalVariables(c(
   #plotting - monteH2Plot() and monteHePlot()
   "vol_km",  "colorField",
   "H2RateMin_molyr", "H2RateMean_molyr", "H2RateMax_molyr",
-  "HeRateMin_molyr", "HeRateMean_molyr", "HeRateMax_molyr"
+  "HeRateMin_molyr", "HeRateMean_molyr", "HeRateMax_molyr",
 
+  #deepTime - deepTimeProd()
+  "U238ppm","U238ppm_T","U235ppm","U235ppm_T", "Uppm_T", "Thppm_T", "Kpct_T","EKA_T",
+  "EThA_T", "EUA_T", "W_T", "EThB_T", "EUB_T","EKB_T", "EKG_T", "EThG_T", "EUG_T",
+  "ENetA_T", "sysDen_T", "ENetB_T", "ENetG_T", "YH2A_T", "YH2B_T", "YH2G_T",
+  "Uppm", "Thppm", "Kpct", "fluDen", "Fe2O3T","Fe2O3","FeO","FeT","Fe3FeTRatCur",
+  "Fe3FeTInitalRat","Fe3FeTRatDiff","Fe3O4Diff_wt","molFe3O4","SerpModel", "RadModel"
 ))
