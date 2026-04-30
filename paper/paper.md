@@ -47,36 +47,26 @@ Lastly, production rates produced by monteProd() can be projected into deep time
 Overall, LithoGas provides a straightforward workflow for modelling multiple samples from a single structured input dataframe through to publication-ready summaries and plots that inform exploration. Functions include: 1) performing the Monte Carlo modelling via monteProd(), ingesting data as a structured dataframe (Table 1); 2) summarising Monte Carlo results via monteSum() and plotting novel source-volume-scaling plots via monteH2Plot() and monteHePlot() (Figure 1). Example datasets include dataframes structured for Monte Carlo model input with and without known rock properties (structuredDF) and the summarised lithology distributions from The Canadian Rock Physical Property Database (CRPPData). 
 
 
-#### Table 1: Example layout of structured dataframe required for input into Radiolysis monteProd() function. The function data from the input dataframe by column name (e.g., $uMin, $rockDenMax), as such column names must match exactly. 
+#### Table 1: Columns required for different models within monteProd() function. monteProd() gathers input data by column name (e.g., $uMin, $rockDenMax), as such column names must match exactly. Parameters listed with "..." end of column the name (e.g., "u...") require a min, max, mean, and standard deviation columns (e.g., "uMin", "uMax", "uMean", "uSD").
 
-|Dataframe column | Type        | Description                                                                                            |
-|:------------------------:|:-----------:|:-----------------------------------------------------------------------:|
-|Sample | Numeric | Sample name |
-|uMin |Numeric|Minimum of modelled uranium concentration distribution (ppm)|
-|uMax |Numeric|Maximum of modelled uranium concentration distribution (ppm)|
-|uMean|Numeric|Mean of modelled uranium concentration distribution (ppm)|
-|uSD|Numeric|Standard deviation of modelled uranium concentration distribution (ppm)|
-|thMin |Numeric|Minimum of modelled thorium concentration distribution (ppm)|
-|thMax |Numeric|Maximum of modelled thorium concentration distribution (ppm)|
-|thMean|Numeric|Mean of modelled thorium concentration distribution (ppm)|
-|thSD|Numeric|Standard deviation of modelled thorium concentration distribution (ppm)|
-|kMin |Numeric|Minimum of modelled potassium concentration distribution (wt%)|
-|kMax |Numeric|Maximum of modelled potassium concentration distribution (wt%)|
-|kMean|Numeric|Mean of modelled potassium concentration distribution (wt%)|
-|kSD|Numeric|Standard deviation of modelled potassium concentration distribution (wt5)|
-|fluDenMin |Numeric|Minimum of modelled fluid density distribution (g/cm3)|
-|fluDenMax |Numeric|Maximum of modelled fluid density distribution (g/cm3)|
-|fluDenMean|Numeric|Mean of modelled fluid density distribution (g/cm3)|
-|fluDenSD|Numeric|Standard deviation of modelled fluid density distribution (g/cm3)|
-lithLith|String|Lithologiy/category of desired rock properties from Canadian Rock Physical Property Database|
-|rockDenMin |Numeric|Minimum of modelled rock density distribution (g/cm3)|
-|rockDenMax |Numeric|Maximum of modelled rock density distribution (g/cm3)|
-|rockDenMean|Numeric|Mean of modelled rock density distribution (g/cm3)|
-|rockDenSD|Numeric|Standard deviation of modelled rock density distribution (g/cm3)|
-|porMin |Numeric|Minimum of modelled grain porosity distribution (decimal fraction)|
-|porMax |Numeric|Maximum of modelled grain porosity distribution (decimal fraction)|
-|porMean|Numeric|Mean of modelled grain porosity distribution (decimal fraction)|
-|porSD|Numeric|Standard deviation of grain porosity distribution (decimal fraction)|
+| Parameter (...Min/...Max/...Mean/...SD) | Type | Description | Model | 
+|:------------------------:|:-----------:|:-----------------------------------------------------------------------:|:-----------:|
+| Sample | Text | Sample name – not necessarily named “Sample” but some sort of unique sample ID | All models |
+| Age_Ma | Numeric | The age of the rock in millions of year (Ma) | All models |
+| AgeUnc2S_Ma | Numeric | Uncertainty as of age (2S /2σ) in absolute terms (Ma) | All models |
+| u... | Numeric | Minimum, maximum, mean, standard deviation of modelled distribution of uranium concentration - in ppm. Each uMin, uMean, uMax, uSD, are separate columns. | Radiolysis – monteRad() |
+| th... | Numeric | Minimum, maximum, mean, standard deviation of modelled distribution of thorium concentration - in ppm. Each thMin, thMean, thMax, thSD, are separate columns. | Radiolysis – monteRad() |
+| k... | Numeric | Minimum, maximum, mean, standard deviation of modelled distribution of potassium concentration - in weight percent potassium (wt% K). Each kMin, kMean, kMax, kSD, are separate columns. | Radiolysis – monteRad() |
+| fluDen... | Numeric | Minimum, maximum, mean, standard deviation of modelled distribution of fluid density in g/cm3. Each fluDenMin, fluDenMax, fluDenMean, fluDenSD, are separate columns | Radiolysis – monteRad() |
+| Fe3FeTRatInit... | Numeric | Minimum, maximum, mean, standard deviation of modelled distribution of initial Fe3+/FeT ratio at time of rock formation/crystallisation. This ratio is unitless. | Serpentinization, both monteSerpFeSpecies() and monteSerpFeTotal() |
+| Fe2O3... | Numeric | Minimum, maximum, mean, standard deviation of modelled distribution of measured concentration of Fe2O3, as per iron speciation measurements (iron titration, Mossbauer). In units of weight percent Fe2O3 (wt% Fe2O3). | Serpentinization - monteSerpFeSpecies() |
+| FeO... | Numeric | Minimum, maximum, mean, standard deviation of modelled distribution of measured concentration of FeO, as per iron speciation measurements (iron titration, Mossbauer). In units of weight percent FeO (wt% FeO). | Serpentinization - monteSerpFeSpecies() |
+| Fe2O3T... | Numeric | Minimum, maximum, mean, standard deviation of modelled distribution of measured total iron represented as Fe2O3. In units of weight percent Fe2O3 (wt% Fe2O3T). | Serpentinization - monteSerpFeTotal() |
+| Fe3FeTRatCur... | Numeric | Minimum, maximum, mean, standard deviation of modelled distribution of initial Fe3+/FeT ratio at time of measurement. This ratio is unitless. | Serpentinization - monteSerpFeTotal() |
+| litLith | Categorical selection | Lithologic groups from Enkin et al. (2018), inclusion of a categorial rock type will draw rock density and porosity from the known distribution and ignore porosity and density distributions input. If the column is left blank, or the column is not included, the model will pull from the rock density and porosity columns  | All models, if not assigned by rockDen and por Min/Max/Mean/SD |
+| rockDen... | Numeric | Minimum, maximum, mean, standard deviation of modelled distribution, in units of g/cm3 | All models, if not assigned by litLith field and therefore joinLitProp function |
+| por... | Numeric | Minimum, maximum, mean, standard deviation of modelled distribution of rock porosity (grain porosity) in fractional porosity (0-1) | Radiolysis, if not assigned by litLith field and therefore joinLitProp function |
+
 
 # Figures
 ![ Novel source-rock-volume scaling plots used to compare the prospectivity of lithogeochemical samples. The mean production rate of Monte Carlo distributions are shown scaling from 0.5 km3 source area to 100 km3 source area.  \label{fig:Figure 1}](Fig1_H2ScalingPlot_structuredDF.jpeg)
