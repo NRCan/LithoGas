@@ -31,17 +31,17 @@ Defaults to \code{FALSE}.}
 hydrogen production rates are performed using iron speciation methods
 via \code{\link{monteSerpFeSpecies}}. Requires \code{Fe2O3Min},
 \code{Fe2O3Max}/\code{Fe2O3Mean}/\code{Fe2O3SD}/\code{FeOMin},
-\code{FeOMax}/\code{FeOMean}/\code{FeOSD}/\code{Fe3FeTInitalRatMin},
-\code{Fe3FeTInitalRatMax}/\code{Fe3FeTInitalRatMean},
-\code{Fe3FeTInitalRatSD}, and age columns
+\code{FeOMax}/\code{FeOMean}/\code{FeOSD}/\code{Fe3FeTRatInitMin},
+\code{Fe3FeTRatInitMax}/\code{Fe3FeTRatInitMean},
+\code{Fe3FeTRatInitSD}, and age columns
 Defaults to \code{FALSE}.}
 
 \item{allowTotalFeSerp}{Logical. If \code{TRUE}, total iron
 serpentinization calculations are used in lieu of iron speciation
 methods when \code{serp = FALSE}. Requires total \code{Fe2O3TMin},
-\code{Fe2O3TMax}/\code{Fe2O3TMean}/\code{Fe2O3TSD}/\code{Fe3FeTInitalRatMin},
-\code{Fe3FeTInitalRatMax}/\code{Fe3FeTInitalRatMean},
-\code{Fe3FeTInitalRatSD}/\code{Fe3FeTRatCurMin}/\code{Fe3FeTRatCurMax},
+\code{Fe2O3TMax}/\code{Fe2O3TMean}/\code{Fe2O3TSD}/\code{Fe3FeTRatInitMin},
+\code{Fe3FeTRatInitMax}/\code{Fe3FeTRatInitMean},
+\code{Fe3FeTRatInitSD}/\code{Fe3FeTRatCurMin}/\code{Fe3FeTRatCurMax},
 \code{Fe3FeTRatCurMean}/\code{Fe3FeTRatCurSD}, and age columns.
 Defaults to \code{FALSE}.}
 }
@@ -67,7 +67,7 @@ following steps:
   \item Expands the sample row to \code{numGen} rows for Monte Carlo
     trials.
   \item Generates an age distribution from geochronologic uncertainty
-    (\code{AgeMa} +/- \code{AgeUnc2S_Ma}/2) if age columns are present.
+    (\code{Age_Ma} +/- \code{AgeUnc2S_Ma}/2) if age columns are present.
   \item Assigns rock density and porosity either from sample-specific
     distributions or from lithology defaults via
     \code{\link{joinLitProps}} if \code{litLith} is provided and

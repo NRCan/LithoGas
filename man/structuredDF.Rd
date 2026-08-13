@@ -8,7 +8,7 @@
 A data frame with one row per sample and the following columns:
 \describe{
   \item{\code{Sample}}{Character. Sample name or identifier. Required for all calculations. Column does not need to be named "Sample"}
-  \item{\code{AgeMa}}{Numeric. Sample age (in millions of years - Ma). Required for all calculations.}
+  \item{\code{Age_Ma}}{Numeric. Sample age (in millions of years - Ma). Required for all calculations.}
   \item{\code{AgeUnc2S_Ma}}{Numeric. 2-sigma age uncertainty (Ma). Required for all calculations.}
   \item{\code{litLith}}{String. A lithology string from \code{\link{CRPPData}} in lieu of rockDenMin/Max/Mean/SD and porMin/Max/Mean/SD }
 
@@ -42,10 +42,10 @@ A data frame with one row per sample and the following columns:
   \item{\code{kMean}}{Numeric. Mean of potassium concentration distribution (wt\% K). Required for radiolysis calculations.}
   \item{\code{kSD}}{Numeric. Standard deviation of potassium concentration distribution (wt\% K). Required for radiolysis calculations.}
 
-  \item{\code{Fe3FeTInitalRatMin}}{Numeric. Lower bound of intial Fe3+/FeT ratio. Required for both serpentinization calculations}
-  \item{\code{Fe3FeTInitalRatMax}}{Numeric. Upper bound of intial Fe3+/FeT ratio. Required for both serpentinization calculations}
-  \item{\code{Fe3FeTInitalRatMean}}{Numeric. Mean of intial Fe3+/FeT ratio. Required for both serpentinization calculations}
-  \item{\code{Fe3FeTInitalRatSD}}{Numeric. Standard deviation of intial Fe3+/FeT ratio. Required for both serpentinization calculations}
+  \item{\code{Fe3FeTRatInitMin}}{Numeric. Lower bound of intial Fe3+/FeT ratio. Required for both serpentinization calculations}
+  \item{\code{Fe3FeTRatInitMax}}{Numeric. Upper bound of intial Fe3+/FeT ratio. Required for both serpentinization calculations}
+  \item{\code{Fe3FeTRatInitMean}}{Numeric. Mean of intial Fe3+/FeT ratio. Required for both serpentinization calculations}
+  \item{\code{Fe3FeTRatInitSD}}{Numeric. Standard deviation of intial Fe3+/FeT ratio. Required for both serpentinization calculations}
 
    \item{\code{Fe2O3Min}}{Numeric. Lower bound of Fe2O3 distribution (wt\% Fe2O3). Required for iron species serpentinization calculation.}
   \item{\code{Fe2O3Max}}{Numeric. Upper bound of Fe2O3 distribution (wt\% Fe2O3). Required for iron species serpentinization calculation.}

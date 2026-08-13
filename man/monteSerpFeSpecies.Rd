@@ -44,7 +44,7 @@ magnetite (Fe\eqn{_3}O\eqn{_4}) produced and the associated hydrogen yield.
 The function generates Monte Carlo distributions for Fe\eqn{_2}O\eqn{_3}
 and FeO from truncated normal distributions, then calculates the current
 Fe\eqn{^{3+}}/Fe\eqn{_T} ratio (\code{Fe3FeTRatCur}). An initial
-Fe\eqn{^{3+}}/Fe\eqn{_T} ratio (\code{Fe3FeTInitalRat}) is also sampled,
+Fe\eqn{^{3+}}/Fe\eqn{_T} ratio (\code{Fe3FeTRatInit}) is also sampled,
 constrained to not exceed the current ratio (i.e. oxidation state can only
 increase during serpentinization).
 

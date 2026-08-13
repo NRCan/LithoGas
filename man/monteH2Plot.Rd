@@ -4,7 +4,7 @@
 \alias{monteH2Plot}
 \title{monteH2Plot}
 \usage{
-monteH2Plot(sumDF, colorField = "Sample")
+monteH2Plot(sumDF, colorField = "Sample", ribbon = FALSE)
 }
 \arguments{
 \item{sumDF}{A summary data frame produced by \code{\link{monteSum}}.
@@ -13,6 +13,8 @@ Must contain columns \code{Sample}, \code{H2RateMin},
 mol H\eqn{_2} / m\eqn{^3} / year.}
 
 \item{colorField}{field for colour to be attributed to lines in the plot}
+
+\item{ribbon}{Boolean, to control min/max geom_ribbon() around the mean line for each sample}
 }
 \value{
 A list of length 2:
