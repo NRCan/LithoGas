@@ -43,8 +43,8 @@ calculated at each time step. If \code{rad==True}, additional columns will be ad
   \item{\code{Thppm}}{Total thorium concentration at time \code{timeStep_Ma} (ppm).}
   \item{\code{Kpct}}{Total potassium concentration at time \code{timeStep_Ma} (wt\%).}
   \item{\code{Kppm}}{Total potassium concentration at time \code{timeStep_Ma} (wt\%).}
-  \item{\code{U238ppm}}{²³⁸U concentration at time \code{timeStep_Ma} (ppm).}
-  \item{\code{U235ppm}}{²³⁵U concentration at time  \code{timeStep_Ma} (ppm).}
+  \item{\code{U238ppm}}{238U concentration at time \code{timeStep_Ma} (ppm).}
+  \item{\code{U235ppm}}{235U concentration at time  \code{timeStep_Ma} (ppm).}
   \item{\code{RadH2Rate_molm3yr}}{H2 generation rate (mol/m3/year), back calculated at time \code{timeStep_Ma}}
   \item{\code{RadHeRate_molm3yr}}{He generation rate (mol/m3/year), back calculated at time \code{timeStep_Ma}}
   \item{\code{RadH2_molm3}}{Cumulative volume of H2 generated over the \code{timeStep_Ma} in mols H2 per m3. Calculated by \code{RadH2Rate_molm3yr} * \code{timeStep_Ma}}
@@ -60,7 +60,7 @@ If \code{serp==True}, additional columns will be added:
 \description{
 For radiolysis models, present-day measured concentrations of uranium, thorium,
 and potassium, are back calucualted to deep-time concentrations at specified ages
-by reversing the radioactive decay equations for each relevant isotope (²³⁸U, ²³⁵U, ²³²Th, ⁴⁰K).
+by reversing the radioactive decay equations for each relevant isotope (238U, 235U, 232Th, 40K).
 These deep-time concentrations are then used to calculate H2 and He production rates
 via radiolysis.
 }
