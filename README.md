@@ -27,7 +27,7 @@ LithoGas is not yet on CRAN. Install directly from GitHub:
 
 ```r
 # install.packages("devtools")
-devtools::install_github("yourusername/LithoGas")
+devtools::install_github("NRCan/LithoGas")
 ```
 
 ---
