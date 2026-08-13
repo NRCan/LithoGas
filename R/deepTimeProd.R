@@ -81,8 +81,8 @@ deepTimeProd <- function(monteProdDF, startAge_Ma, endAge_Ma, stepAge_Ma, rad=FA
   desired_cols <- c("Uppm", "Thppm", "Kpct", "rockDen", "porosity", "fluDen",
                     "sysDen", "W", "EKA", "EKB", "EKG", "EThA", "EThB", "EThG",
                     "EUA", "EUB", "EUG", "ENetA", "ENetB", "ENetG", "YH2A", "YH2B",
-                    "YH2G", "RadH2Rate_molm3yr", "RadHeRate_molm3y", "Fe2O3T",
-                    "Fe2O3", "FeO", "FeT", "Fe3FeTRatCur", "Fe3FeTInitalRat", "Fe3FeTRatDiff",
+                    "YH2G", "RadH2Rate_molm3yr", "RadHeRate_molm3yr", "Fe2O3T",
+                    "Fe2O3", "FeO", "FeT", "Fe3FeTRatCur", "Fe3FeTRatInit", "Fe3FeTRatDiff",
                     "Fe3O4Diff_wt", "molFe3O4", "SerpH2_molm3", "SerpH2Rate_molm3yr",
                     "SerpModel") #these are the columns we need for the code to run
 
@@ -153,7 +153,7 @@ deepTimeProd <- function(monteProdDF, startAge_Ma, endAge_Ma, stepAge_Ma, rad=FA
       stepDF <- stepDF %>%
         select(-sysDen,-W,-EKA,-EKB,-EKG,-EThA,-EThB,-EThG,-EUA, -EUB,-EUG,
                -ENetA,-ENetB,-ENetG,-YH2A,-YH2B,-YH2G, -RadH2Rate_molm3yr,
-               -RadHeRate_molm3yr, -RadHeRate_molm3y, -Thppm, -Kpct,
+               -RadHeRate_molm3yr, -RadHeRate_molm3yr, -Thppm, -Kpct,
                -Uppm ) #Drop some original columns calculation variables
 
       stepDF <- stepDF %>%
@@ -180,7 +180,7 @@ deepTimeProd <- function(monteProdDF, startAge_Ma, endAge_Ma, stepAge_Ma, rad=FA
         rename_with(~ sub("_T$", "", .x), ends_with("_T")) #rename current columns of calculation variables
     }else {
       stepDF <- stepDF %>%
-        select(-Fe2O3T, -Fe2O3, -FeO, -FeT, -Fe3FeTRatCur, -Fe3FeTInitalRat, -Fe3FeTRatDiff,
+        select(-Fe2O3T, -Fe2O3, -FeO, -FeT, -Fe3FeTRatCur, -Fe3FeTRatInit, -Fe3FeTRatDiff,
                -Fe3O4Diff_wt, -molFe3O4, -SerpH2_molm3, -SerpH2Rate_molm3yr,
                -SerpModel)
     }

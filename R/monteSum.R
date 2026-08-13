@@ -64,7 +64,7 @@
 monteSum <- function(monteDF,summaryField){
 
   #Add any missing columns to the monte carlo results
-  desired_cols <- c("SerpH2Rate_molm3yr", "RadH2Rate_molm3yr",   "RadHeRate_molm3yr") #these are the columns we want in our monteOutput
+  desired_cols <- c("SerpH2Rate_molm3yr", "RadH2Rate_molm3yr", "RadHeRate_molm3yr") #these are the columns we want in our monteOutput
   missing_cols <- setdiff(desired_cols, names(monteDF))  # find cols in desired but not in A
   monteDF[missing_cols] <- NA #set any of the missing columns to NA
 
@@ -90,7 +90,6 @@ monteSum <- function(monteDF,summaryField){
               HeRateMin_molm3yr = RadHeRateMin_molm3yr, #total helium rates is that of just He from radiolysis
               HeRateMean_molm3yr = RadHeRateMean_molm3yr, #total helium rates is that of just He from radiolysis
               HeRateMax_molm3yr = RadHeRateMax_molm3yr) #total helium rates is that of just He from radiolysis
-
 
   sumDF <- sumDF %>%
     mutate(across(where(is.numeric), ~ ifelse(is.infinite(.), NA, .))) # Replace any Inf/-Inf produced by min()/max() on all-NA groups with NA

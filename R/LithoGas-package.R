@@ -13,7 +13,7 @@ utils::globalVariables(c(
   "CRPPData", "structuredDF",
 
   # Sample identifiers
-  "Lithology",  "Sample", "AgeMa",  "AgeUnc2S_Ma",  "Age",
+  "Lithology",  "Sample", "Age_Ma",  "AgeUnc2S_Ma",  "Age",
 
   # Rock properties
   "rockDen", "rockDenMin", "rockDenMax", "rockDenMean", "rockDenSD",
@@ -34,8 +34,8 @@ utils::globalVariables(c(
   "Fe2O3Min", "Fe2O3Max", "Fe2O3Mean", "Fe2O3SD",
   "Fe2O3TMin", "Fe2O3TMax", "Fe2O3TMean", "Fe2O3TSD",
   "FeOMin", "FeOMax", "FeOMean", "FeOSD",
-  "Fe3FeTInitalRatMin", "Fe3FeTInitalRatMax",
-  "Fe3FeTInitalRatMean", "Fe3FeTInitalRatSD",
+  "Fe3FeTRatInitMin", "Fe3FeTRatInitMax",
+  "Fe3FeTRatInitMean", "Fe3FeTRatInitSD",
   "Fe3FeTRatCurMin", "Fe3FeTRatCurMax",
   "Fe3FeTRatCurMean", "Fe3FeTRatCurSD",
   "mass", "SerpH2_molm3", "SerpH2Rate_molm3yr",
@@ -58,5 +58,6 @@ utils::globalVariables(c(
   "EThA_T", "EUA_T", "W_T", "EThB_T", "EUB_T","EKB_T", "EKG_T", "EThG_T", "EUG_T",
   "ENetA_T", "sysDen_T", "ENetB_T", "ENetG_T", "YH2A_T", "YH2B_T", "YH2G_T",
   "Uppm", "Thppm", "Kpct", "fluDen", "Fe2O3T","Fe2O3","FeO","FeT","Fe3FeTRatCur",
-  "Fe3FeTInitalRat","Fe3FeTRatDiff","Fe3O4Diff_wt","molFe3O4","SerpModel", "RadModel"
+  "Fe3FeTRatInit","Fe3FeTRatDiff","Fe3O4Diff_wt","molFe3O4","SerpModel", "RadModel",
+  "RadH2Rate_molm3yr_T", "RadHeRate_molm3yr_T", "RadHeRate_molm3y", "Fe3FeTInitalRat"
 ))

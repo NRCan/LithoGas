@@ -11,7 +11,7 @@
 #' The function generates Monte Carlo distributions for Fe\eqn{_2}O\eqn{_3}
 #' and FeO from truncated normal distributions, then calculates the current
 #' Fe\eqn{^{3+}}/Fe\eqn{_T} ratio (\code{Fe3FeTRatCur}). An initial
-#' Fe\eqn{^{3+}}/Fe\eqn{_T} ratio (\code{Fe3FeTInitalRat}) is also sampled,
+#' Fe\eqn{^{3+}}/Fe\eqn{_T} ratio (\code{Fe3FeTRatInit}) is also sampled,
 #' constrained to not exceed the current ratio (i.e. oxidation state can only
 #' increase during serpentinization).
 #'
@@ -87,21 +87,21 @@ monteSerpFeSpecies <- function(DF,numGen){
 
   DF$FeT <- (DF$Fe2O3*0.69943) + (DF$FeO*0.77731) #calculate total Fe wt% from Fe2O3 and FeO converting to Fe and summing
   DF$Fe3FeTRatCur <- (DF$Fe2O3*0.69943)/DF$FeT #calculate current Fe3+ / FeT ratio
-  Fe3FeTInitalRat <- as.data.frame(rtrunc(numGen,  #Generate a distribution of initial Fe3+/FeT ratio taking into account the current Fe3/FeT
+  Fe3FeTRatInit <- as.data.frame(rtrunc(numGen,  #Generate a distribution of initial Fe3+/FeT ratio taking into account the current Fe3/FeT
                                           "norm",
-                                          lower = min(unique(DF$Fe3FeTInitalRatMin), unique(DF$Fe3FeTRatCur))-0.001, #LB, best guess or the current value (if unaltered)
-                                          upper = min(unique(DF$Fe3FeTInitalRatMax), unique(DF$Fe3FeTRatCur))+0.001, #UB, best guess or the current value (if unaltered)
-                                          mean = min(unique(DF$Fe3FeTInitalRatMean),unique(DF$Fe3FeTRatCur)), #we want to use the measurement if it is below the mean
-                                          sd = unique(DF$Fe3FeTInitalRatSD)))
+                                          lower = min(unique(DF$Fe3FeTRatInitMin), unique(DF$Fe3FeTRatCur))-0.001, #LB, best guess or the current value (if unaltered)
+                                          upper = min(unique(DF$Fe3FeTRatInitMax), unique(DF$Fe3FeTRatCur))+0.001, #UB, best guess or the current value (if unaltered)
+                                          mean = min(unique(DF$Fe3FeTRatInitMean),unique(DF$Fe3FeTRatCur)), #we want to use the measurement if it is below the mean
+                                          sd = unique(DF$Fe3FeTRatInitSD)))
 
 
-  colnames(Fe3FeTInitalRat) <-"Fe3FeTInitalRat"
-  DF <- cbind(DF,Fe3FeTInitalRat)
+  colnames(Fe3FeTRatInit) <-"Fe3FeTRatInit"
+  DF <- cbind(DF,Fe3FeTRatInit)
 
-  DF$Fe3FeTInitalRat <- pmin(DF$Fe3FeTInitalRat, DF$Fe3FeTRatCur) #take the lower of the initial and measured Fe3FeTRatios
+  DF$Fe3FeTRatInit <- pmin(DF$Fe3FeTRatInit, DF$Fe3FeTRatCur) #take the lower of the initial and measured Fe3FeTRatios
 
   #Find difference between measured and initial iron ratio
-  DF$Fe3FeTRatDiff <- DF$Fe3FeTRatCur - DF$Fe3FeTInitalRat
+  DF$Fe3FeTRatDiff <- DF$Fe3FeTRatCur - DF$Fe3FeTRatInit
   DF$Fe3O4Diff_wt <- DF$Fe3FeTRatDiff * DF$FeT / 0.7236 #mutliply by total iron to get Fe3, then find the representation of that Fe3 as Fe3O4
 
   #Calculate hydrogen
@@ -112,8 +112,6 @@ monteSerpFeSpecies <- function(DF,numGen){
   #convert mass to hydrogen if 100% converted to Fe3O4
   DF$molFe3O4 <- (DF$rockDen * (DF$Fe3O4Diff_wt/100))*(1000/231.5386) #find number of moles Fe3O4 per mass (kg) that makes up 1 cubic meter. Fe3O4 is 231.5386 g/mol or 0.2315386 kg/mol
   DF$SerpH2_molm3 <- DF$molFe3O4 #find hydrogen mols assuming some conversion rate (convRate) (e.g., 100%) completion (1Fe3O43 --> 1 H2)
-  #DF$SerpH2_kgm3 <- DF$SerpH2_molm3 * 2.016 / 1000 #find hydrogen mass (kg) for that mols (mols hydrogen * 2.016 g/mol)
-  #DF$SerpH2Rate_kgm3yr <- DF$SerpH2_kgm3 / (DF$Age * 1000000) #age is in units of millions of year (Ma) so multiply by 1,000,000 to get years
   DF$SerpH2Rate_molm3yr <- DF$SerpH2_molm3 / (DF$Age * 1000000)
   DF$SerpModel <- "Fe Species Serp"
   DF <- DF %>% select(-initColnames, -mass)

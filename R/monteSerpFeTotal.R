@@ -70,19 +70,19 @@ monteSerpFeTotal <- function(DF,numGen){
 
 
 
-  Fe3FeTInitalRat <- as.data.frame(rtrunc(numGen,  #Generate a distribution of initial Fe3+/FeT ratio taking into account the current Fe3/FeT
+  Fe3FeTRatInit <- as.data.frame(rtrunc(numGen,  #Generate a distribution of initial Fe3+/FeT ratio taking into account the current Fe3/FeT
                                           "norm",
-                                          lower = unique(DF$Fe3FeTInitalRatMin), #LB, best guess or the current value (if unaltered)
-                                          upper = unique(DF$Fe3FeTInitalRatMax), #UB, best guess or the current value (if unaltered)
-                                          mean = unique(DF$Fe3FeTInitalRatMean), #we want to use the measurement if it is below the mean
-                                          sd = unique(DF$Fe3FeTInitalRatSD)))
+                                          lower = unique(DF$Fe3FeTRatInitMin), #LB, best guess or the current value (if unaltered)
+                                          upper = unique(DF$Fe3FeTRatInitMax), #UB, best guess or the current value (if unaltered)
+                                          mean = unique(DF$Fe3FeTRatInitMean), #we want to use the measurement if it is below the mean
+                                          sd = unique(DF$Fe3FeTRatInitSD)))
 
-  colnames(Fe3FeTInitalRat) <-"Fe3FeTInitalRat" #update column name
-  DF <- cbind(DF,Fe3FeTInitalRat)
+  colnames(Fe3FeTRatInit) <-"Fe3FeTRatInit" #update column name
+  DF <- cbind(DF,Fe3FeTRatInit)
 
   #Calculate change in Fe3+ and Fe3O4
-  DF$Fe3FeTInitalRat <- pmin(DF$Fe3FeTInitalRat, DF$Fe3FeTRatCur)   #If initial is greater than current, set initial to current, no serpentinization
-  DF$Fe3FeTRatDiff <- DF$Fe3FeTRatCur - DF$Fe3FeTInitalRat #Find differene in chnage in Fe3Ratio
+  DF$Fe3FeTRatInit <- pmin(DF$Fe3FeTRatInit, DF$Fe3FeTRatCur)   #If initial is greater than current, set initial to current, no serpentinization
+  DF$Fe3FeTRatDiff <- DF$Fe3FeTRatCur - DF$Fe3FeTRatInit #Find differene in chnage in Fe3Ratio
   DF$Fe3O4Diff_wt <- DF$Fe3FeTRatDiff * DF$FeT / 0.7236 #mutliply by total iron to get Fe3, then find the representation of that Fe3 as Fe3O4
 
   #Calculate hydrogen
@@ -92,8 +92,6 @@ monteSerpFeTotal <- function(DF,numGen){
   #Convert mass to hydrogen if 100% converted to Fe3O4
   DF$molFe3O4 <- (DF$rockDen * (DF$Fe3O4Diff_wt/100))*(1000/231.5386) #find number of moles Fe3O4 per mass (kg) that makes up 1 cubic meter. Fe3O4 is 231.5386 g/mol or 0.2315386 kg/mol
   DF$SerpH2_molm3 <- DF$molFe3O4 #find hydrogen mols assuming some conversion rate (convRate) (e.g., 100%) completion (1Fe3O43 --> 1 H2)
-  #DF$SerpH2_kgm3 <- DF$SerpH2_molm3 * 2.016 / 1000 #find hydrogen mass (kg) for that mols (mols hydrogen * 2.016 g/mol)
-  #DF$SerpH2Rate_kgm3yr <- DF$SerpH2_kgm3 / (DF$Age * 1000000) #age is in units of millions of year (Ma) so multiply by 1,000,000 to get years
   DF$SerpH2Rate_molm3yr <- DF$SerpH2_molm3 / (DF$Age * 1000000)
   DF$SerpModel <- "Fe Total Serp"
 

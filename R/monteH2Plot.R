@@ -27,6 +27,8 @@
 #'
 #' @param colorField field for colour to be attributed to lines in the plot
 #'
+#' @param ribbon Boolean, to control min/max geom_ribbon() around the mean line for each sample
+#'
 #' @return A list of length 2:
 #'   \describe{
 #'     \item{\code{[[1]]}}{A data frame (\code{volDF}) containing the
@@ -58,7 +60,7 @@
 #' result[[2]] # view the plot
 #'
 #' @export
-monteH2Plot <- function(sumDF, colorField = "Sample"){#, ribbon=FALSE){
+monteH2Plot <- function(sumDF, colorField = "Sample", ribbon=FALSE){
 
   #translate the summary rates from mol/m3/year to mol/km3/year
   sumDF <- sumDF %>%
@@ -83,11 +85,27 @@ monteH2Plot <- function(sumDF, colorField = "Sample"){#, ribbon=FALSE){
     volDF <- rbind(volDF, tempDF)
   }
 
-  p <- ggplot(volDF) +
-    geom_line(mapping=aes(x=vol_km, y=H2RateMean_molyr,color=!!sym(colorField))) +
-    labs(x="Source rock volume (km3)",y="H2 generation rate (mol/year)", color="Source Rock") +
-    theme_bw() + scale_y_log10(sec.axis = sec_axis(~ . * 0.002016, name = "(kg/year)")) +
-    scale_x_log10()
+  # p <- ggplot(volDF) +
+  #   geom_line(mapping=aes(x=vol_km, y=H2RateMean_molyr,color=!!sym(colorField))) +
+  #   labs(x="Source rock volume (km3)",y="H2 generation rate (mol/year)", color="Source Rock") +
+  #   theme_bw() + scale_y_log10(sec.axis = sec_axis(~ . * 0.002016, name = "(kg/year)")) +
+  #   scale_x_log10()
+
+
+  if(ribbon==FALSE){
+    p <- ggplot(volDF) +
+      geom_line(mapping=aes(x=vol_km, y=H2RateMean_molyr, color=!!sym(colorField))) +
+      labs(x="Source rock volume (km3)",y="H2 generation rate (mol/year)", color="Source Rock") +
+      theme_bw() + scale_y_log10(sec.axis = sec_axis(~ . * 0.002016, name = "(kg/year)")) +
+      scale_x_log10()
+  } else {
+    p <- ggplot(volDF) +
+      geom_line(mapping=aes(x=vol_km,y=H2RateMean_molyr, color=!!sym(colorField))) +
+      geom_ribbon(mapping=aes(x=vol_km,ymin=H2RateMin_molyr,ymax=H2RateMax_molyr, fill=!!sym(colorField)),alpha=0.1) +
+      labs(x="Source rock volume (km3)",y="H2 generation rate (mol/year)", color="Source Rock") +
+      theme_bw() + scale_y_log10(sec.axis = sec_axis(~ . * 0.002016, name = "(kg/year)")) +
+      scale_x_log10()
+  }
 
   return(list(volDF,p))
 }

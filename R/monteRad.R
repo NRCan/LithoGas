@@ -135,12 +135,8 @@ monteRad <- function(DF, numGen){
       YH2G = ((ENetG*GH2G)/AConstant)*sysDen*10,
       RadH2Rate_molm3yr = YH2A + YH2B + YH2G,  #H2 generation rate in mol/yr/m3
       RadHeRate_molm3yr = (((3.115E6+1.272E5)*Uppm+7.71E5*Thppm)/AConstant)*sysDen*1E6, #He generation rate in mol/yr/m3
-      #RadH2Rate_kgm3yr = RadH2Rate_molm3yr * 2.016 / 1000, #H2 generation rate in kg/yr/m3
-      #RadHeRate_kgm3yr = RadHeRate_molm3yr * 4.0026 / 1000, #He generation rate in kg/yr/m3
       RadH2_molm3 = RadH2Rate_molm3yr * (Age*1000000), #Total H2 generation since crystallization (mol/m3)
       RadHe_molm3 = RadHeRate_molm3yr * (Age*1000000), #Total He generation since crystallization (mol/m3)
-      #RadH2_kgm3 = RadH2Rate_kgm3yr * (Age * 1000000), #Total H2 generation since crystallization (kg/m3)
-      #RadHe_kgm3 = RadHeRate_kgm3yr * (Age * 1000000) #Total He generation since crystallization (kg/m3)
     )
     DF$RadModel <- "Rad"
     DF <- DF %>% select(-initColnames)

@@ -16,7 +16,7 @@
 #'   \item Expands the sample row to \code{numGen} rows for Monte Carlo
 #'     trials.
 #'   \item Generates an age distribution from geochronologic uncertainty
-#'     (\code{AgeMa} +/- \code{AgeUnc2S_Ma}/2) if age columns are present.
+#'     (\code{Age_Ma} +/- \code{AgeUnc2S_Ma}/2) if age columns are present.
 #'   \item Assigns rock density and porosity either from sample-specific
 #'     distributions or from lithology defaults via
 #'     \code{\link{joinLitProps}} if \code{litLith} is provided and
@@ -53,16 +53,16 @@
 #'   hydrogen production rates are performed using iron speciation methods
 #'   via \code{\link{monteSerpFeSpecies}}. Requires \code{Fe2O3Min},
 #'   \code{Fe2O3Max}/\code{Fe2O3Mean}/\code{Fe2O3SD}/\code{FeOMin},
-#'   \code{FeOMax}/\code{FeOMean}/\code{FeOSD}/\code{Fe3FeTInitalRatMin},
-#'   \code{Fe3FeTInitalRatMax}/\code{Fe3FeTInitalRatMean},
-#'   \code{Fe3FeTInitalRatSD}, and age columns
+#'   \code{FeOMax}/\code{FeOMean}/\code{FeOSD}/\code{Fe3FeTRatInitMin},
+#'   \code{Fe3FeTRatInitMax}/\code{Fe3FeTRatInitMean},
+#'   \code{Fe3FeTRatInitSD}, and age columns
 #'   Defaults to \code{FALSE}.
 #' @param allowTotalFeSerp Logical. If \code{TRUE}, total iron
 #'   serpentinization calculations are used in lieu of iron speciation
 #'   methods when \code{serp = FALSE}. Requires total \code{Fe2O3TMin},
-#'   \code{Fe2O3TMax}/\code{Fe2O3TMean}/\code{Fe2O3TSD}/\code{Fe3FeTInitalRatMin},
-#'   \code{Fe3FeTInitalRatMax}/\code{Fe3FeTInitalRatMean},
-#'   \code{Fe3FeTInitalRatSD}/\code{Fe3FeTRatCurMin}/\code{Fe3FeTRatCurMax},
+#'   \code{Fe2O3TMax}/\code{Fe2O3TMean}/\code{Fe2O3TSD}/\code{Fe3FeTRatInitMin},
+#'   \code{Fe3FeTRatInitMax}/\code{Fe3FeTRatInitMean},
+#'   \code{Fe3FeTRatInitSD}/\code{Fe3FeTRatCurMin}/\code{Fe3FeTRatCurMax},
 #'   \code{Fe3FeTRatCurMean}/\code{Fe3FeTRatCurSD}, and age columns.
 #'   Defaults to \code{FALSE}.
 #'
@@ -92,9 +92,9 @@ monteProd <- function(structDF,numGen,rad=FALSE,serp=FALSE,allowTotalFeSerp=FALS
   resultsDF <- NULL
 
   #Set up columns that we need - add any missing columns
-  desired_cols <- c("litLith", "AgeMa",   "AgeUnc2S_Ma", "AgeReference",
-                    "Fe3FeTInitalRatMin",  "Fe3FeTInitalRatMax",  "Fe3FeTInitalRatMean",
-                    "Fe3FeTInitalRatSD",   "Fe2O3Min", "Fe2O3Max", "Fe2O3Mean",
+  desired_cols <- c("litLith", "Age_Ma",   "AgeUnc2S_Ma",
+                    "Fe3FeTRatInitMin",  "Fe3FeTRatInitMax",  "Fe3FeTRatInitMean",
+                    "Fe3FeTRatInitSD",   "Fe2O3Min", "Fe2O3Max", "Fe2O3Mean",
                     "Fe2O3SD", "FeOMin",  "FeOMax",  "FeOMean", "FeOSD",
                     "Fe2O3TMin", "Fe2O3TMax", "Fe2O3TMean", "Fe2O3TSD",
                     "Fe3FeTRatCurMin", "Fe3FeTRatCurMax", "Fe3FeTRatCurMean",
@@ -127,11 +127,11 @@ monteProd <- function(structDF,numGen,rad=FALSE,serp=FALSE,allowTotalFeSerp=FALS
     kCheck <- !is.na(sampDF%>%select(kMin, kMax, kMean, kSD))
 
     #check serpentinization inputs - Fe2O3, FeO,
-    SerpCheck <- !is.na(sampDF%>%select(Fe3FeTInitalRatMin, Fe3FeTInitalRatMax, Fe3FeTInitalRatMean, Fe3FeTInitalRatSD, Fe2O3Min, Fe2O3Max, Fe2O3Mean, Fe2O3SD, FeOMin, FeOMax, FeOMean, FeOSD))
-    FeTCheck <- !is.na(sampDF%>%select(Fe2O3TMin,Fe2O3TMax,Fe2O3TMean,Fe2O3TSD,Fe3FeTInitalRatMin, Fe3FeTInitalRatMax, Fe3FeTInitalRatMean, Fe3FeTInitalRatSD, Fe3FeTRatCurMin, Fe3FeTRatCurMax, Fe3FeTRatCurMean, Fe3FeTRatCurSD))
+    SerpCheck <- !is.na(sampDF%>%select(Fe3FeTRatInitMin, Fe3FeTRatInitMax, Fe3FeTRatInitMean, Fe3FeTRatInitSD, Fe2O3Min, Fe2O3Max, Fe2O3Mean, Fe2O3SD, FeOMin, FeOMax, FeOMean, FeOSD))
+    FeTCheck <- !is.na(sampDF%>%select(Fe2O3TMin,Fe2O3TMax,Fe2O3TMean,Fe2O3TSD,Fe3FeTRatInitMin, Fe3FeTRatInitMax, Fe3FeTRatInitMean, Fe3FeTRatInitSD, Fe3FeTRatCurMin, Fe3FeTRatCurMax, Fe3FeTRatCurMean, Fe3FeTRatCurSD))
 
     #check age inputs - age + uncertainty
-    ageCheck <- !is.na(sampDF%>%select(AgeMa,AgeUnc2S_Ma))
+    ageCheck <- !is.na(sampDF%>%select(Age_Ma,AgeUnc2S_Ma))
     #END INPUTS CHECK
 
     #Reproduce the input data for the sample for the number of rows as number of numGen
@@ -140,7 +140,7 @@ monteProd <- function(structDF,numGen,rad=FALSE,serp=FALSE,allowTotalFeSerp=FALS
     #If age inputs are valid use normal distribution to generate ages
     if(sum(ageCheck)==2){
       Age <-  as.data.frame(rnorm(numGen, #Generate distribution of ages based on geochronologic uncertainty
-                                  mean = monteDF$AgeMa,
+                                  mean = monteDF$Age_Ma,
                                   sd = monteDF$AgeUnc2S_Ma/2))
       colnames(Age) <-"Age" #update column name
       monteDF <- cbind(monteDF,Age)
