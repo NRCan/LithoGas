@@ -4,7 +4,7 @@
 ![R](https://img.shields.io/badge/R-%3E%3D4.0-276DC3?logo=r&logoColor=white)
 ![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey)
 ![Status](https://img.shields.io/badge/Status-Active-green)
-![GitHub Version](https://shields.io)
+![Status](https://img.shields.io/badge/Version-v1.0-green)
 <!-- badges: end -->
 
 **LithoGas** is an R package for Monte Carlo modelling of geologic hydrogen (H₂) and helium (He) production rates via radiolysis and serpentinization. It implements the methods of Warr et al. (2023) and Ardakani et al. (in review), extended to economic source area estimations and deep time production modelling.
