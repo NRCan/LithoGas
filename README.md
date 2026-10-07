@@ -211,7 +211,7 @@ If you use LithoGas in your research, please cite:
 > Coutts, D.S., Warr, O.A., Ardakani, O.A., Sherwood Lollar, B. *(in review)*
 
 The serpentininzation model is based on:
-> Ardakani, O.A., Sherwood Lollar, B., Coutts, D.S., Warr, O.A., Delonde, C., Kabanov, P., Lister, C. *(in review)*
+> Ardakani, O.A., Sherwood Lollar, B., Coutts, D.S., Warr, O.A., Delonde, C., Kabanov, P., Lister, C. (In Press). A geological framework for natural hydrogen and helium resources in Canada. *Earth Science Reviews*.
 
 The radiolysis model is based on:
 > Warr, O., Song, M., Sherwood Lollar, B. (2023). The application of Monte Carlo modelling to quantify in situ hydrogen and associated element production in the deep subsurface. *Frontiers in Earth Science*, v.11.
