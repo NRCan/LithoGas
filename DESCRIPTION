@@ -1,7 +1,7 @@
 Package: LithoGas
 Type: Package
 Title: Monte Carlo Modelling for Geologic Hydrogen and Helium
-Version: 0.1.0
+Version: 1.0
 Authors@R: c(
     person("Daniel", "Coutts", email = "daniel.coutts@nrcan-rncan.gc.ca",
            role = c("aut", "cre")),
