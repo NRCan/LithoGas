@@ -212,10 +212,10 @@ If you use LithoGas in your research, please cite:
 > Coutts, D.S., Warr, O.A., Ardakani, O.A., Sherwood Lollar, B. *(in review)*
 
 The serpentininzation model is based on:
-> Ardakani, O.A., Sherwood Lollar, B., Coutts, D.S., Warr, O.A., Delonde, C., Kabanov, P., Lister, C. (In Press). A geological framework for natural hydrogen and helium resources in Canada. *Earth Science Reviews*.
+> Ardakani, O.A., Sherwood Lollar, B., Coutts, D.S., Warr, O.A., Delonde, C., Kabanov, P., Lister, C. (In Press). A geological framework for natural hydrogen and helium resources in Canada. *Earth Science Reviews*. DOI: https://doi.org/10.1016/j.earscirev.2026.105717.
 
 The radiolysis model is based on:
-> Warr, O., Song, M., Sherwood Lollar, B. (2023). The application of Monte Carlo modelling to quantify in situ hydrogen and associated element production in the deep subsurface. *Frontiers in Earth Science*, v.11.
+> Warr, O., Song, M., Sherwood Lollar, B. (2023). The application of Monte Carlo modelling to quantify in situ hydrogen and associated element production in the deep subsurface. *Frontiers in Earth Science*, v.11. DOI: https://doi.org/10.3389/feart.2023.1150740
 
 Rock property data sourced from:
 > Enkin, R.J. (2018). The Canadian Rock Physical Property Database: first public release. *Geological Survey of Canada*, Open File 8460, 68 p. Natural Resources Canada. https://ostrnrcan-dostrncan.canada.ca/entities/publication/c4c0cede-365c-4c87-8077-8e045e874de6
