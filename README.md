@@ -7,7 +7,7 @@
 ![Status](https://img.shields.io/badge/Version-v1.0-green)
 <!-- badges: end -->
 
-**LithoGas** is an R package for Monte Carlo modelling of geologic hydrogen (H₂) and helium (He) production rates via radiolysis and serpentinization. It implements the methods of Warr et al. (2023) and Ardakani et al. (in review), extended to economic source area estimations and deep time production modelling.
+**LithoGas** is an R package for Monte Carlo modelling of geologic hydrogen (H₂) and helium (He) generation rates via radiolysis and serpentinization. It implements the methods of Warr et al. (2023) and Ardakani et al. (in review), extended to economic source area estimations and deep time generation modelling.
 
 ---
 
@@ -18,7 +18,7 @@ Geologic hydrogen and helium are generated in the deep subsurface through two pr
 - **Radiolysis** — the splitting of water molecules into oxygen ions and H2 molecules by alpha, beta, and gamma radiation from the radioactive decay of U, Th, and K in surrounding minerals
 - **Serpentinization** — oxidation of Fe²⁺ to Fe³⁺ during hydration of iron-rich rocks, releasing H₂
 
-LithoGas propagates measurement uncertainties through both models using Monte Carlo simulation, producing distributions of production rates rather than single-point estimates. Results can be scaled to arbitrary source rock volumes for economic feasibility assessment.
+LithoGas propagates measurement uncertainties through both models using Monte Carlo simulation, producing distributions of generation rates rather than single-point estimates. Results can be scaled to arbitrary source rock volumes for economic feasibility assessment.
 
 ---
 
@@ -47,7 +47,7 @@ results <- monteProd(structuredDF, numGen = 50, rad = TRUE)
 # Summarise results by sample
 sumDF <- monteSum(results, summaryField = "Sample")
 
-# Plot H2 production scaled by source rock volume
+# Plot H2 generation scaled by source rock volume
 plots <- monteH2Plot(sumDF)
 plots[[2]]  # view the ggplot2 object
 ```
@@ -65,13 +65,13 @@ Input dataframe      ← structured dataframe - see examples
       ├──► joinLitProps()      ← function within monteProd() that assigns rock density & porosity from CRPPData
       │                          (when litLith provided, no sample data)
       │
-      ├──► monteRad()      ← function within monteProd() that caluclates H2 & He production rates via radiolysis 
+      ├──► monteRad()      ← function within monteProd() that caluclates H2 & He generation rates via radiolysis 
       │                      (when rad = TRUE)
       │
-      └──► monteSerpFeSpecies()      ← function within monteProd() that calculates H2 production rates via serpentinization from geochemistry data with iron speciation
+      └──► monteSerpFeSpecies()      ← function within monteProd() that calculates H2 generation rates via serpentinization from geochemistry data with iron speciation
       │                                (when serp = TRUE)
       │
-            └──► monteSerpFeSpecies()      ← function wihtin monteProd() that calculates H2 production rates via serpentinizationfrom geochemistry data with total iron concentration
+            └──► monteSerpFeSpecies()      ← function wihtin monteProd() that calculates H2 generation rates via serpentinizationfrom geochemistry data with total iron concentration
       │                                      (when serp = TRUE and allowTotalFeSerp = TRUE)
       ▼
  monteSum() ← summarises trials to min/mean/max per sample
@@ -93,7 +93,7 @@ deepTimeProd() ← Back H2 and He generation rates following average serpentinzi
 | Function | Description |
 |---|---|
 | `monteProd()` | Main Monte Carlo wrapper for radiolysis and serpentinization calculations. It runs radiolysis and/or serpentinization models over all samples present in the structured input dataframe. This function checks input samples for correct data availbility prior to completing calculations |
-| `monteRad()` | Radiolysis model for H₂ and He production rates (Warr et al. 2023). Called internally by `monteProd()` |
+| `monteRad()` | Radiolysis model for H₂ and He generation rates (Warr et al. 2023). Called internally by `monteProd()` |
 | `monteSerpFeSpecies()` | Serpentinization model for iron speciation data (Fe₂O₃ & FeO). Called internally by `monteProd()` |
 | `monteSerpFeTotal()` |  Serpentinization model for total iron concentration data (Fe₂O₃T). Called internally by `monteProd()` |
 | `joinLitProps()` | Assigns rock density and porosity distributions from `CRPPData` by lithology. Called internally by `monteProd()` |
@@ -104,9 +104,9 @@ deepTimeProd() ← Back H2 and He generation rates following average serpentinzi
 
 | Function | Description |
 |---|---|
-| `monteSum()` | Summarises Monte Carlo output to one row per sample (min/mean/max production rates) |
-| `monteH2Plot()` | Log-log plot of H₂ production rate vs. source rock volume (0.1–100 km³) |
-| `monteHePlot()` | Log-log plot of He production rate vs. source rock volume (0.1–100 km³) |
+| `monteSum()` | Summarises Monte Carlo output to one row per sample (min/mean/max generation rates) |
+| `monteH2Plot()` | Log-log plot of H₂ generation rate vs. source rock volume (0.1–100 km³) |
+| `monteHePlot()` | Log-log plot of He generation rate vs. source rock volume (0.1–100 km³) |
 
 ---
 
@@ -159,12 +159,12 @@ Note: monteProd() evaluates each input row/sample for the presence of all requir
 
 | Column | Description | Units | Model |
 |---|---|---|---|
-| `RadH2Rate_molm3yr` | Radiolytic H₂ production rate | mol H₂ / m³ rock / year | Radiolysis |
-| `RadHeRate_molm3yr` | Radiolytic He production rate | mol He / m³ rock / year | Radiolysis |
-| `RadMolH2_molm3` | Cumulative radiolytic H₂ production over sample age | mol/m³ H₂ | Radiolysis |
-| `RadMolHe_molm3` | Cumulative radiolytic He production over sample age | mol/m³ He | Radiolysis |
-| `SerpH2Rate_molm3yr` | Serpentinization H₂ production rate | mol H₂ / m³ rock / year  | Serpentinization |
-| `SerpMolH2_molm3` | Cumulative serpentinization H₂ production over sample age | mol H₂ | Serpentinization |
+| `RadH2Rate_molm3yr` | Radiolytic H₂ generation rate | mol H₂ / m³ rock / year | Radiolysis |
+| `RadHeRate_molm3yr` | Radiolytic He generation rate | mol He / m³ rock / year | Radiolysis |
+| `RadMolH2_molm3` | Cumulative radiolytic H₂ generation over sample age | mol/m³ H₂ | Radiolysis |
+| `RadMolHe_molm3` | Cumulative radiolytic He generation over sample age | mol/m³ He | Radiolysis |
+| `SerpH2Rate_molm3yr` | Serpentinization H₂ generation rate | mol H₂ / m³ rock / year  | Serpentinization |
+| `SerpMolH2_molm3` | Cumulative serpentinization H₂ generation over sample age | mol H₂ | Serpentinization |
 
 
 `monteSum()` returns a wide-format dataframe of H₂/He generation rates summarized by selected field (i.e., by a `group_by()`). All rates are in  mol gas / m³ rock / year Key output columns:
@@ -215,7 +215,7 @@ The serpentininzation model is based on:
 > Ardakani, O.A., Sherwood Lollar, B., Coutts, D.S., Warr, O.A., Delonde, C., Kabanov, P., Lister, C. (In Press). A geological framework for natural hydrogen and helium resources in Canada. *Earth Science Reviews*. DOI: https://doi.org/10.1016/j.earscirev.2026.105717.
 
 The radiolysis model is based on:
-> Warr, O., Song, M., Sherwood Lollar, B. (2023). The application of Monte Carlo modelling to quantify in situ hydrogen and associated element production in the deep subsurface. *Frontiers in Earth Science*, v.11. DOI: https://doi.org/10.3389/feart.2023.1150740
+> Warr, O., Song, M., Sherwood Lollar, B. (2023). The application of Monte Carlo modelling to quantify in situ hydrogen and associated element generation in the deep subsurface. *Frontiers in Earth Science*, v.11. DOI: https://doi.org/10.3389/feart.2023.1150740
 
 Rock property data sourced from:
 > Enkin, R.J. (2018). The Canadian Rock Physical Property Database: first public release. *Geological Survey of Canada*, Open File 8460, 68 p. Natural Resources Canada. https://ostrnrcan-dostrncan.canada.ca/entities/publication/c4c0cede-365c-4c87-8077-8e045e874de6
